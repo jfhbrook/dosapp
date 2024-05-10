@@ -3,7 +3,7 @@ version: '3'
 tasks:
   init:
     cmds:
-      - mkdir -p "${DOSAPP_DISK_HOME}/wordperfect"
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/wordperfect"
       - mkdir -p "${DOSAPP_CONFIG_HOME}/apps/wordperfect"
       - gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf"
       - gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/install.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/wordperfect/install.conf"
@@ -15,8 +15,9 @@ tasks:
 
   unpack:
     cmds:
-      - rm -rf "${DOSAPP_DISK_HOME}/wordperfect/cdrom"
-      - ${_7Z_BIN} x "${DOSAPP_DOWNLOAD_HOME}/wordperfect-6.2.7z" "-o${DOSAPP_DISK_HOME}/wordperfect/cdrom"
+      - rm -rf "${DOSAPP_STATE_HOME}/apps/wordperfect/cdrom"
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/wordperfect"
+      - ${_7Z_BIN} x "${DOSAPP_DOWNLOAD_HOME}/wordperfect-6.2.7z" "-o${DOSAPP_STATE_HOME}/apps/wordperfect/cdrom"
 
   install:
     deps: [download, unpack]

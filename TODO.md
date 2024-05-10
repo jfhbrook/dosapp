@@ -9,10 +9,10 @@
   - run init task
 - [X] stub wordperfect package
   - [X] `./packages/{{app}}/Taskfile.yml`
-  - [ ] `./packages/{{app}}/dosapp.env.tmpl`
+  - [X] `./packages/{{app}}/dosapp.env.tmpl`
     - location of wordperfect root drive
     - location of documents
-  - [ ] `./packages/{{app}}/*.conf.tmpl`
+  - [X] `./packages/{{app}}/*.conf.tmpl`
     - use wordperfect root drive
     - use documents location
 - [ ] "install" command

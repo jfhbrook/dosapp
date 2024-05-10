@@ -23,6 +23,7 @@ function load-config {
   export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
   export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
   export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
+  export DOSAPP_DOWNLOAD_HOME="${DOSAPP_DOWNLOAD_HOME:-${DOSAPP_CACHE_HOME}/downloads}"
   export EDITOR="${EDITOR:-vi}"
 }
 
