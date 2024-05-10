@@ -1,19 +1,19 @@
 ## dosapp
 
-- create folder structure I want
-- create bash script that wraps go-task
-- install gomplate
-- "init" command that templates out ~/.config/dosapp
+- [ ] create folder structure I want
+- [X] create bash script that wraps go-task
+- [X] install gomplate
+- [X] "init" command that templates out ~/.config/dosapp
   - mkdir -p
   - copy Taskfile.yml
   - run init task
-- include ~/.config/dosapp/Taskfile.yml in package yml
+- [ ] include ~/.config/dosapp/Taskfile.yml in package yml
   - optional: true
   - include env configs
-- template out ~/.config/dosapp/apps/{{app}} with gomplate
+- [ ] template out ~/.config/dosapp/apps/{{app}} with gomplate
   - and run that, not packages/{{app}}/Taskfile.yml etc
-- 'link' command that templates out `~/.local/bin/*` with `packages/{{app}}/bin/*.tmpl`
-- 'publish' command that just calls `~/.config/dosapp/Taskfile.yml`
+- [ ] 'link' command that templates out `~/.local/bin/*` with `packages/{{app}}/bin/*.tmpl`
+- [ ] 'publish' command that just calls `~/.config/dosapp/Taskfile.yml`
 
 That will give me:
 
