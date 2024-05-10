@@ -6,7 +6,6 @@ vars:
   GREETING: Hello, World!
 
 tasks:
-  default:
+  init:
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - gomplate -i "$(cat "${DOSAPP_ROOT}/config/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/main.conf"

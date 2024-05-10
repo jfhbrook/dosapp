@@ -92,6 +92,8 @@ function run-init {
   load-config
 
   cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
+
+  (cd "${DOSAPP_CONFIG_HOME}" && task init)
 }
 
 function help-init {
