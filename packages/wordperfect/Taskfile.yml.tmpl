@@ -1,0 +1,29 @@
+version: '3'
+
+env:
+  DOSBOX_BIN: dosbox-x
+  _7Z_BIN: 7zz
+
+dotenv: ['.env']
+
+tasks:
+  download:
+    cmds:
+      - mkdir -p downloads
+      - if [ ! -f downloads/wordperfect-6.2.7z ]; then curl -L https://winworldpc.com/download/46c2a565-c3b5-18c3-9a11-c3a4e284a2ef/from/c39ac2af-c381-c2bf-1b25-11c3a4e284a2 -o downloads/wordperfect-6.2.7z; fi
+
+  unpack:
+    cmds:
+      - rm -rf cdrom
+      - ${_7Z_BIN} x downloads/wordperfect-6.2.7z -ocdrom
+
+  install:
+    deps: [download, unpack]
+    cmds:
+      - mkdir -p hd
+      - ${DOSBOX_BIN} -userconf -conf main.conf -conf install.conf
+
+  start:
+    cmds:
+      - mkdir -p hd
+      - ${DOSBOX_BIN} -userconf -conf main.conf -conf start.conf
