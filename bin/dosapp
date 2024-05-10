@@ -1,1 +1,199 @@
 #!/usr/bin/env bash
+
+set -euo pipefail
+
+#
+# Configuration
+#
+
+function load-config {
+  DOSAPP_CONFIG_HOME="${CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}}/dosapp"
+
+  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ]; then
+    source "${DOSAPP_CONFIG_HOME}/dosapp.env"
+  fi
+
+  DEBUG="${DEBUG:-}"
+  DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}}/dosapp"
+  DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}}/dosapp"
+  DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}}/dosapp"
+}
+
+load-config
+
+#
+# Logging
+#
+
+function log-debug {
+  if [ -n "${DEBUG}" ]; then
+    echo "DEBUG:" "$@"
+  fi
+}
+
+function log-info {
+  echo "INFO:" "$@"
+}
+
+function log-error {
+  echo "ERROR:" "$@" >&2
+}
+
+#
+# Root command
+#
+
+function run-root {
+  log-info "Root command"
+}
+
+function help-root {
+  echo "USAGE: dosapp [SUBCOMMAND] [OPTIONS]"
+}
+
+#
+# Init command
+#
+
+function run-init {
+  log-info "Init command"
+}
+
+function help-init {
+  echo "USAGE: dosapp init [OPTIONS]"
+}
+
+#
+# Install command
+#
+
+function run-install {
+  log-info "Install command"
+}
+
+function help-install {
+  echo "USAGE: dosapp install [APP] [OPTIONS]"
+}
+
+#
+# Start command
+#
+
+function run-start {
+  log-info "Start command"
+}
+
+function help-start {
+  echo "USAGE: dosapp start [APP] [OPTIONS]"
+}
+
+#
+# Link command
+#
+
+function run-link {
+  log-info "Link command"
+}
+
+function help-link {
+  echo "USAGE: dosapp link [APP] [OPTIONS]"
+}
+
+#
+# Publish command
+#
+
+function run-publish {
+  log-info "Publish command"
+}
+
+function help-publish {
+  echo "USAGE: dosapp publish [OPTIONS]"
+}
+
+#
+# Command options
+#
+
+DEBUG="${DEBUG:-}"
+
+HELP=''
+SUBCOMMAND=''
+APP_NAME=''
+
+while [[ $# -gt 0 ]]; do
+  case "${1}" in
+    -h|--help)
+      HELP=1
+      shift
+      ;;
+    -*)
+      log-error "Unknown option: ${1}" 
+      exit 1
+      ;;
+    *)
+      if [ -z "${SUBCOMMAND}" ]; then
+        SUBCOMMAND="${1}"
+        shift
+      elif [[ "${SUBCOMMAND}" == install ]] \
+        || [[ "${SUBCOMMAND}" == start ]] \
+        || [[ "${SUBCOMMAND}" == link ]]; then
+        APP_NAME="${1}"
+        shift
+      else
+        log-error "Unknown argument: ${1}"
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+if [ -n "${HELP}" ]; then
+  case "${SUBCOMMAND}" in
+    init)
+      help-init
+      ;;
+    install)
+      help-install
+      ;;
+    start)
+      help-start
+      ;;
+    link)
+      help-link
+      ;;
+    publish)
+      help-publish
+      ;;
+    *)
+      help-root
+      ;;
+  esac
+  exit 0
+fi
+
+if [ -z "${SUBCOMMAND}" ]; then
+  run-root
+else
+  case "${SUBCOMMAND}" in
+    init)
+      run-init
+      ;;
+    install)
+      run-install
+      ;;
+    start)
+      run-start
+      ;;
+    link)
+      run-link
+      ;;
+    publish)
+      run-publish
+      ;;
+    *)
+      log-error "Unknown subcommand: ${SUBCOMMAND}"
+      exit 1
+      ;;
+  esac
+fi
