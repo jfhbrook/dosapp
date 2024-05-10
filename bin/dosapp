@@ -7,21 +7,21 @@ set -euo pipefail
 #
 
 # Inject default root with package installer
-DOSAPP_ROOT=''
+export DOSAPP_ROOT=''
 
 function load-config {
-  DOSAPP_ROOT="${DOSAPP_ROOT:-$(dirname $(dirname "$(readlink -f "${BASH_SOURCE[0]}")"))}"
-  DOSAPP_CONFIG_HOME="${DOSAPP_CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}}/dosapp"
+  export DOSAPP_ROOT="${DOSAPP_ROOT:-$(dirname $(dirname "$(readlink -f "${BASH_SOURCE[0]}")"))}"
+  export DOSAPP_CONFIG_HOME="${DOSAPP_CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}/dosapp}"
 
   if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ]; then
     source "${DOSAPP_CONFIG_HOME}/dosapp.env"
   fi
 
-  DEBUG="${DEBUG:-}"
-  DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}}/dosapp"
-  DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}}/dosapp"
-  DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}}/dosapp"
-  EDITOR="${EDITOR:-vi}"
+  export DEBUG="${DEBUG:-}"
+  export DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}/dosapp}"
+  export DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}/dosapp}"
+  export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
+  export EDITOR="${EDITOR:-vi}"
 }
 
 load-config
@@ -61,8 +61,19 @@ function help-root {
 #
 
 function run-init {
+  local exit_overwrite=''
+
   if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${FORCE}" ]; then
     log-error "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
+    exit_overwrite=1
+  fi
+
+  if [ -f "${DOSAPP_CONFIG_HOME}/Taskfile.yml" ] && [ -z "${FORCE}" ]; then
+    log-error "Taskfile already exists at ${DOSAPP_CONFIG_HOME}/Taskfile.yml"
+    exit_overwrite=1
+  fi
+
+  if [ -n "${exit_overwrite}" ]; then
     log-info 'To overwrite the configuration, run `dosapp init --force`'
     exit 1
   fi
@@ -79,6 +90,8 @@ function run-init {
   fi
 
   load-config
+
+  cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
 }
 
 function help-init {
