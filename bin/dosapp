@@ -21,6 +21,8 @@ function load-config {
   export DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}/dosapp}"
   export DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}/dosapp}"
   export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
+  export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
+  export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
   export EDITOR="${EDITOR:-vi}"
 }
 

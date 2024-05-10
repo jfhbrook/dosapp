@@ -7,9 +7,22 @@
   - mkdir -p
   - copy Taskfile.yml
   - run init task
-- [ ] include ~/.config/dosapp/Taskfile.yml in package yml
-  - optional: true
-  - include env configs
+- [X] stub wordperfect package
+  - [X] `./packages/{{app}}/Taskfile.yml`
+  - [ ] `./packages/{{app}}/dosapp.env.tmpl`
+    - location of wordperfect root drive
+    - location of documents
+  - [ ] `./packages/{{app}}/*.conf.tmpl`
+    - use wordperfect root drive
+    - use documents location
+- [ ] "install" command
+  - template out `~/.local/share/dosapp/apps/{{app}}/Taskfile.yml`
+  - template out `~/.local/share/dosapp/apps/{{app}}/*.conf`
+    - use new `Taskfile.yml` to run this task
+  - run "install" task
+    - `./packages/{{app}}/Taskfile.yml`
+    - store downloads in `~/.cache/dosapp/downloads`
+    - store disks in `~/.local/share/dosapp/disks`
 - [ ] template out ~/.config/dosapp/apps/{{app}} with gomplate
   - and run that, not packages/{{app}}/Taskfile.yml etc
 - [ ] 'link' command that templates out `~/.local/bin/*` with `packages/{{app}}/bin/*.tmpl`
