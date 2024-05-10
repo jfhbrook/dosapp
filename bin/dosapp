@@ -6,8 +6,12 @@ set -euo pipefail
 # Configuration
 #
 
+# Inject default root with package installer
+DOSAPP_ROOT=''
+
 function load-config {
-  DOSAPP_CONFIG_HOME="${CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}}/dosapp"
+  DOSAPP_ROOT="${DOSAPP_ROOT:-$(dirname $(dirname "$(readlink -f "${BASH_SOURCE[0]}")"))}"
+  DOSAPP_CONFIG_HOME="${DOSAPP_CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}}/dosapp"
 
   if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ]; then
     source "${DOSAPP_CONFIG_HOME}/dosapp.env"
@@ -17,6 +21,7 @@ function load-config {
   DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}}/dosapp"
   DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}}/dosapp"
   DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}}/dosapp"
+  EDITOR="${EDITOR:-vi}"
 }
 
 load-config
@@ -56,7 +61,24 @@ function help-root {
 #
 
 function run-init {
-  log-info "Init command"
+  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${FORCE}" ]; then
+    log-error "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
+    log-info 'To overwrite the configuration, run `dosapp init --force`'
+    exit 1
+  fi
+
+  mkdir -p "${DOSAPP_CONFIG_HOME}"
+
+  cp "${DOSAPP_ROOT}/config/dosapp.env" "${DOSAPP_CONFIG_HOME}/dosapp.env"
+  log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/dosapp.env"
+
+  if [ -n "${EDITOR}" ]; then
+    ${EDITOR} "${DOSAPP_CONFIG_HOME}/dosapp.env"
+  else
+    log-info "EDITOR not defined. Skipping configuration."
+  fi
+
+  load-config
 }
 
 function help-init {
@@ -118,11 +140,16 @@ function help-publish {
 DEBUG="${DEBUG:-}"
 
 HELP=''
+FORCE=''
 SUBCOMMAND=''
 APP_NAME=''
 
 while [[ $# -gt 0 ]]; do
   case "${1}" in
+    --force)
+      FORCE=1
+      shift
+      ;;
     -h|--help)
       HELP=1
       shift
