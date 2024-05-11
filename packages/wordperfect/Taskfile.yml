@@ -18,13 +18,14 @@ tasks:
       - 'if [ ! -f "${DOSAPP_DOWNLOAD_HOME}/wordperfect-6.2.7z" ]; then curl -L "https://winworldpc.com/download/46c2a565-c3b5-18c3-9a11-c3a4e284a2ef/from/c39ac2af-c381-c2bf-1b25-11c3a4e284a2" -o "${DOSAPP_DOWNLOAD_HOME}/wordperfect-6.2.7z"; fi'
 
   unpack:
+    deps: [download]
     cmds:
       - rm -rf "${DOSAPP_STATE_HOME}/apps/wordperfect/cdrom"
       - mkdir -p "${DOSAPP_STATE_HOME}/apps/wordperfect"
       - ${DOSAPP_7Z_BIN} x "${DOSAPP_DOWNLOAD_HOME}/wordperfect-6.2.7z" "-o${DOSAPP_STATE_HOME}/apps/wordperfect/cdrom"
 
   install:
-    deps: [download, unpack]
+    deps: [unpack]
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/install.conf"'
 
