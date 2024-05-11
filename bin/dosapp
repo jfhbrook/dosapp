@@ -48,13 +48,14 @@ function load-config {
   export DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}/dosapp}"
   export DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}/dosapp}"
   export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
-  export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
+  export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-${HOME}/dosapp}"
+  export DOSAPP_LINK_HOME="${DOSAPP_LINK_HOME:-${HOME}/.local/bin}"
   export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
   export DOSAPP_DOWNLOAD_HOME="${DOSAPP_DOWNLOAD_HOME:-${DOSAPP_CACHE_HOME}/downloads}"
   export PAGER="${PAGER:-cat}"
-  export DOSAPP_DISK_A="${DOSAPP_DISK_A:-~/Documents}"
+  export DOSAPP_DISK_A="${DOSAPP_DISK_A:-${HOME}/Documents}"
   export DOSAPP_DISK_B="${DOSAPP_DISK_B:-}"
-  export DOSAPP_DISK_C="${DOSAPP_DISK_C:-~/dosapp}"
+  export DOSAPP_DISK_C="${DOSAPP_DISK_C:-${HOME}/dosapp/c}"
 }
 
 #
@@ -219,7 +220,7 @@ function help-start {
 #
 
 function run-link {
-  log-info "Link command"
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task link)
 }
 
 function help-link {

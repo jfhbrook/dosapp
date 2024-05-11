@@ -32,3 +32,8 @@ tasks:
   start:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/start.conf"'
+
+  link:
+    cmds:
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/bin/wp.tmpl")" > "${DOSAPP_LINK_HOME}/wp"'
+      - chmod +x "${DOSAPP_LINK_HOME}/wp"
