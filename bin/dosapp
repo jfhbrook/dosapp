@@ -64,7 +64,6 @@ function load-config {
 
 HELP=''
 EDIT='1'
-# FORCE=''
 OVERWRITE=''
 README='1'
 SUBCOMMAND=''
@@ -78,10 +77,6 @@ function parse-argv {
         EDIT=''
         shift
         ;;
-      # --force)
-      #   FORCE=1
-      #   shift
-      #   ;;
       -h|--help)
         HELP=1
         shift
