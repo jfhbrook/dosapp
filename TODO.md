@@ -1,19 +1,5 @@
 # dosapp
 
-## v1.0
-
-- [X] Fill out help text
-- [X] Add `--version` flag
-- [X] Require app name for relevant subcommands
-- [X] Implement reusable refresh functions
-- [ ] Write README
-- [ ] Turn repository public
-
-## Packages
-
-- [ ] turbo-pascal
-- [ ] DOStodon
-
 ## Go Rewrite
 
 - [ ] Create cobra app with the same shape as the bash command
