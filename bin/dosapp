@@ -201,7 +201,13 @@ function help-install {
 #
 
 function run-start {
-  log-info "Start command"
+  if [ -n "${OVERWRITE}" ]; then
+    (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
+  else
+    log-info "To refresh the configuration, run 'dosapp start ${APP_NAME} --overwrite'"
+  fi
+
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task start)
 }
 
 function help-start {

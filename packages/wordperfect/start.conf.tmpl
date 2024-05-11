@@ -1,6 +1,5 @@
 [autoexec]
-C:\AUTOEXEC.BAT
 PATH=C:\COREL\WP62
-A:
+{{ if .Env.DOSAPP_DISK_A }}A:{{ end }}
 WP
 EXIT
