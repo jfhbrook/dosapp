@@ -65,8 +65,6 @@ following environment variables are respected:
 These directories are typically configured to match the XDG spec, but may be
 overwritten.
 
-- `DOSAPP_DATA_HOME`: The location to store app data. Defaults to
-  `~/.local/share/dosapp`.
 - `DOSAPP_STATE_HOME`: The location to store non-critical app state. Defaults
   to `~/.local/state/dosapp`.
 - `DOSAPP_CACHE_HOME`: The location to store cached app data. Defaults to
