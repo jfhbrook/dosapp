@@ -65,6 +65,7 @@ function load-config {
 HELP=''
 EDIT='1'
 OVERWRITE=''
+REFRESH=''
 README='1'
 SUBCOMMAND=''
 APP_NAME=''
@@ -87,6 +88,10 @@ function parse-argv {
         ;;
       --no-readme)
         README=''
+        shift
+        ;;
+      --refresh)
+        REFRESH='1'
         shift
         ;;
       -*)
@@ -116,10 +121,10 @@ function parse-argv {
 #
 
 function run-root {
-  if [ -n "${OVERWRITE}" ]; then
+  if [ -n "${OVERWRITE}" ] || [ -n "${REFRESH}" ]; then
     (cd "${DOSAPP_CONFIG_HOME}" && task init)
   else
-    log-info "To refresh the configuration, run 'dosapp --overwrite'"
+    log-info "To refresh the configuration, run 'dosapp --refresh'"
   fi
 
   (cd "${DOSAPP_CONFIG_HOME}" && task start)
@@ -134,10 +139,12 @@ function help-root {
 #
 
 function run-init {
+  local refresh="${REFRESH}"
   if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${OVERWRITE}" ]; then
     log-warn "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
-    log-warn "To overwrite the configuration, run 'dosapp init --overwrite'"
+    log-warn "To overwrite and refresh the configuration, run 'dosapp init --overwrite'"
   else
+    refresh='1'
     cp "${DOSAPP_ROOT}/config/dosapp.env" "${DOSAPP_CONFIG_HOME}/dosapp.env"
     log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/dosapp.env"
   fi
@@ -154,9 +161,16 @@ function run-init {
 
   load-config
 
-  cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
+  if [ ! -f "${DOSAPP_ROOT}/config/Taskfile.yml" ]; then
+    refresh=1
+  fi
 
-  (cd "${DOSAPP_CONFIG_HOME}" && task init)
+  if [ -z "${refresh}" ]; then
+    log-warn "To refresh the configuration, run 'dosapp init --refresh'"
+  else
+    cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
+    (cd "${DOSAPP_CONFIG_HOME}" && task init)
+  fi
 }
 
 function help-init {
@@ -203,11 +217,11 @@ function help-install {
 #
 
 function run-start {
-  if [ -n "${OVERWRITE}" ]; then
+  if [ -n "${OVERWRITE}" ] || [ -n "${REFRESH}" ]; then
     (cd "${DOSAPP_CONFIG_HOME}" && task init)
     (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
   else
-    log-info "To refresh the configuration, run 'dosapp start ${APP_NAME} --overwrite'"
+    log-info "To refresh the configuration, run 'dosapp start ${APP_NAME} --refresh'"
   fi
 
   (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task start)
