@@ -127,16 +127,48 @@ function parse-argv {
   done
 }
 
+function require-app {
+  if [ -z "${APP_NAME}" ]; then
+    log-error "App name is required"
+    exit 1
+  fi
+}
+
+#
+# Refresh configuration
+#
+
+function refresh-main {
+  cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
+  (cd "${DOSAPP_CONFIG_HOME}" && task init)
+}
+
+function refresh-app {
+  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/Taskfile.yml"
+  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/README.md" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
+
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
+}
+
+function refresh {
+  if [ -n "${OVERWRITE}" ] || [ -n "${REFRESH}" ]; then
+    refresh-main
+    if [ -n "${APP_NAME}" ]; then
+      refresh-app
+    fi
+  else
+    log-info "To refresh the configuration, run 'dosapp --refresh'"
+  fi
+}
+
+
+
 #
 # Root command
 #
 
 function run-root {
-  if [ -n "${OVERWRITE}" ] || [ -n "${REFRESH}" ]; then
-    (cd "${DOSAPP_CONFIG_HOME}" && task init)
-  else
-    log-info "To refresh the configuration, run 'dosapp --refresh'"
-  fi
+  refresh
 
   (cd "${DOSAPP_CONFIG_HOME}" && task start)
 }
@@ -150,12 +182,11 @@ function help-root {
 #
 
 function run-init {
-  local refresh="${REFRESH}"
   if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${OVERWRITE}" ]; then
     log-warn "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
     log-warn "To overwrite and refresh the configuration, run 'dosapp init --overwrite'"
   else
-    refresh='1'
+    REFRESH='1'
     cp "${DOSAPP_ROOT}/config/dosapp.env" "${DOSAPP_CONFIG_HOME}/dosapp.env"
     log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/dosapp.env"
   fi
@@ -173,15 +204,10 @@ function run-init {
   load-config
 
   if [ ! -f "${DOSAPP_ROOT}/config/Taskfile.yml" ]; then
-    refresh=1
+    REFRESH=1
   fi
 
-  if [ -z "${refresh}" ]; then
-    log-warn "To refresh the configuration, run 'dosapp init --refresh'"
-  else
-    cp "${DOSAPP_ROOT}/config/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/Taskfile.yml"
-    (cd "${DOSAPP_CONFIG_HOME}" && task init)
-  fi
+  refresh-main
 }
 
 function help-init {
@@ -193,28 +219,31 @@ function help-init {
 #
 
 function run-install {
+  require-app
+
   mkdir -p "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}"
 
   gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/dosapp.env.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
   log-info "Environment file written to ${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
 
-  if [ -n "${EDITOR}" ]; then
-    ${EDITOR} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
+  if [ -n "${EDIT}" ]; then
+    if [ -n "${EDITOR}" ]; then
+      ${EDITOR} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
+    else
+      log-warn "EDITOR not defined. Skipping editing env file."
+    fi
   else
-    log-info "EDITOR not defined. Skipping configuration."
+    log-info "Skipping editing env file."
   fi
 
-  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/README.md" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
+  refresh
 
-  log-info "README written to ${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
 
   if [ -n "${README}" ]; then
     ${PAGER} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
+  else
+    log-info "README written to ${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
   fi
-
-  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/Taskfile.yml"
-
-  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
 
   (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task install)
 }
@@ -247,6 +276,10 @@ function help-start {
 #
 
 function run-link {
+  require-app
+
+  refresh
+
   if [ -n "${REMOVE}" ]; then
     (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task remove-link)
   else
