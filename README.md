@@ -129,3 +129,7 @@ This project contains a `Taskfile`, with two tasks:
 
 - `task check` - Run `shellcheck` against the shell scripts in the project.
 - `task install` - Symlink `./bin/dosapp` to `~/.local/bin/dosapp`.
+
+## License
+
+I'm releasing this under an MIT license. See [LICENSE](./LICENSE) for details.
