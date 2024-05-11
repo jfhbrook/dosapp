@@ -2,10 +2,10 @@
 
 ## v1.0
 
-- [ ] 'overwrite' behavior for `dosapp init` and Taskfile/conf
-- [ ] 'link' command that templates out `~/.local/bin/*` with `packages/{{app}}/bin/*.tmpl`
-- [ ] 'publish' task in wordperfect package that publishes a release to github
-- [ ] 'fetch' command in `./bin/dosapp` that fetches a release from github
+- [ ] Fill out help text
+- [ ] Add `--version` flag
+- [ ] Write README
+- [ ] Turn repository public
 
 ## Packages
 
@@ -14,7 +14,14 @@
 
 ## Go Rewrite
 
-- Create cobra app with the same shape as the bash command
-- use `exec.Command` to call go-task and gomplate
-- create `dosapp template` command that replaces gomplate
-- create `dosapp task` command that embeds go-task
+- [ ] Create cobra app with the same shape as the bash command
+- [ ] Use `exec.Command` to call existing bash procedures
+- [ ] Load dotenv file in go
+- [ ] Pull logic from bash procedures to go - call `task` and `gomplate` with
+      `exec.Command`
+- [ ] Create `template` command that replaces gomplate
+- [ ] Create `task` command that embeds go-task
+- [ ] Create `unpack` and `pack` commands that use `sevenzip`, etc
+- [ ] Create `download` command that replaces `curl`
+- [ ] Publish packages in the form of github releases
+- [ ] Create `fetch` command that fetches a release from github
