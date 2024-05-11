@@ -6,3 +6,7 @@ tasks:
   init:
     cmds:
       - gomplate -i "$(cat "${DOSAPP_ROOT}/config/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/main.conf"
+
+  start:
+    cmds:
+      - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}//start.conf"'

@@ -116,7 +116,13 @@ function parse-argv {
 #
 
 function run-root {
-  log-info "Root command"
+  if [ -n "${OVERWRITE}" ]; then
+    (cd "${DOSAPP_CONFIG_HOME}" && task init)
+  else
+    log-info "To refresh the configuration, run 'dosapp --overwrite'"
+  fi
+
+  (cd "${DOSAPP_CONFIG_HOME}" && task start)
 }
 
 function help-root {
@@ -198,6 +204,7 @@ function help-install {
 
 function run-start {
   if [ -n "${OVERWRITE}" ]; then
+    (cd "${DOSAPP_CONFIG_HOME}" && task init)
     (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
   else
     log-info "To refresh the configuration, run 'dosapp start ${APP_NAME} --overwrite'"
