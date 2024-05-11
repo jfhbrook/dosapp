@@ -44,6 +44,10 @@ As far as I know, neither DOSBox nor DOSBox-X support faxes. That said,
 DOSBox-X does support networking - it may be possible to fake faxing through
 that facility. Someday.
 
+#### Serial Number
+
+The serial number is not validated. `123456789` is fine.
+
 ## Usage
 
 Refer to the documentation:
