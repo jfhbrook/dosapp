@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+export DOSAPP_VERSION=1.0.0
+
 # Inject default root with package installer
 export DOSAPP_ROOT=''
 
@@ -93,6 +95,10 @@ function parse-argv {
       --refresh)
         REFRESH='1'
         shift
+        ;;
+      --version)
+        echo "v${DOSAPP_VERSION}"
+        exit 0
         ;;
       -*)
         log-error "Unknown option: ${1}" 
