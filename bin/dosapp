@@ -223,19 +223,6 @@ function help-link {
 }
 
 #
-# Publish command
-#
-
-function run-publish {
-  log-info "Publish command"
-}
-
-function help-publish {
-  echo "USAGE: dosapp publish [OPTIONS]"
-}
-
-
-#
 # Main
 #
 
@@ -257,9 +244,6 @@ function main {
         ;;
       link)
         help-link
-        ;;
-      publish)
-        help-publish
         ;;
       *)
         help-root
@@ -283,9 +267,6 @@ function main {
         ;;
       link)
         run-link
-        ;;
-      publish)
-        run-publish
         ;;
       *)
         log-error "Unknown subcommand: ${SUBCOMMAND}"
