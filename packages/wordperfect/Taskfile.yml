@@ -37,3 +37,7 @@ tasks:
     cmds:
       - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/bin/wp.tmpl")" > "${DOSAPP_LINK_HOME}/wp"'
       - chmod +x "${DOSAPP_LINK_HOME}/wp"
+
+  remove-link:
+    cmds:
+      - rm -f "${DOSAPP_LINK_HOME}/wp"

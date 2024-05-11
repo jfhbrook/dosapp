@@ -69,6 +69,7 @@ EDIT='1'
 OVERWRITE=''
 REFRESH=''
 README='1'
+REMOVE=''
 SUBCOMMAND=''
 APP_NAME=''
 
@@ -94,6 +95,10 @@ function parse-argv {
         ;;
       --refresh)
         REFRESH='1'
+        shift
+        ;;
+      --remove)
+        REMOVE=1
         shift
         ;;
       --version)
@@ -242,7 +247,11 @@ function help-start {
 #
 
 function run-link {
-  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task link)
+  if [ -n "${REMOVE}" ]; then
+    (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task remove-link)
+  else
+    (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task link)
+  fi
 }
 
 function help-link {
