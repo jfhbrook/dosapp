@@ -2,6 +2,18 @@
 
 Manage DOSBox apps.
 
+## Install
+
+Installing `dosapp` is currently a matter of cloning this repo and linking
+`./bin/dosapp` to a location in your `$PATH`. To YOLO that install, you can
+try running:
+
+```sh
+bash <(curl -sSfL https://raw.githubusercontent.com/jfhbrook/dosapp/main/install.sh)
+```
+
+This script should also update `dosapp` if it's already installed.
+
 ## Getting Started
 
 To get started, run:
@@ -92,3 +104,11 @@ For example, to create a `wp` script that launches WordPerfect:
 ```sh
 dosapp link wordperfect
 ```
+
+## Packages
+
+Here's a list of packages:
+
+- `wordperfect`
+- **TODO**: `turbo-pascal`
+- **TODO**: `dostodon`
