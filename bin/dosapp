@@ -51,7 +51,7 @@ function load-config {
   export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
   export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
   export DOSAPP_DOWNLOAD_HOME="${DOSAPP_DOWNLOAD_HOME:-${DOSAPP_CACHE_HOME}/downloads}"
-  export EDITOR="${EDITOR:-vi}"
+  export PAGER="${PAGER:-cat}"
   export DOSAPP_DISK_A="${DOSAPP_DISK_A:-~/Documents}"
   export DOSAPP_DISK_B="${DOSAPP_DISK_B:-}"
   export DOSAPP_DISK_C="${DOSAPP_DISK_C:-~/dosapp}"
@@ -65,6 +65,7 @@ HELP=''
 EDIT='1'
 # FORCE=''
 OVERWRITE=''
+README='1'
 SUBCOMMAND=''
 APP_NAME=''
 
@@ -86,6 +87,10 @@ function parse-argv {
         ;;
       --overwrite)
         OVERWRITE=1
+        shift
+        ;;
+      --no-readme)
+        README=''
         shift
         ;;
       -*)
@@ -164,12 +169,20 @@ function run-install {
   mkdir -p "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}"
 
   gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/dosapp.env.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
-  log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/apps/dosapp.env"
+  log-info "Environment file written to ${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
 
   if [ -n "${EDITOR}" ]; then
     ${EDITOR} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
   else
     log-info "EDITOR not defined. Skipping configuration."
+  fi
+
+  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/README.md" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
+
+  log-info "README written to ${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
+
+  if [ -n "${README}" ]; then
+    ${PAGER} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/README.md"
   fi
 
   cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/Taskfile.yml"
