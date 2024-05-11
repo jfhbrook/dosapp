@@ -2,8 +2,10 @@
 
 ## v1.0
 
-- [ ] Fill out help text
-- [ ] Add `--version` flag
+- [X] Fill out help text
+- [X] Add `--version` flag
+- [X] Require app name for relevant subcommands
+- [X] Implement reusable refresh functions
 - [ ] Write README
 - [ ] Turn repository public
 
