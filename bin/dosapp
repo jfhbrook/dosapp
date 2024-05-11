@@ -174,7 +174,21 @@ function run-root {
 }
 
 function help-root {
-  echo "USAGE: dosapp [SUBCOMMAND] [OPTIONS]"
+  echo "USAGE: dosapp [SUBCOMMAND] [OPTIONS]
+
+When called without a subcommand, dosapp will start DOSBox with the default
+configuration.
+
+SUBCOMMANDS:
+  init      Initialize dosapp's config
+  install   Configure an app and run its installer
+  start     Start an app
+  link      Create a script that starts the app
+
+OPTIONS:
+  --help     Show this help message
+  --refresh   Generate new task and conf files
+  --version   Print the version of dosapp"
 }
 
 #
@@ -211,7 +225,15 @@ function run-init {
 }
 
 function help-init {
-  echo "USAGE: dosapp init [OPTIONS]"
+  echo "USAGE: dosapp init [OPTIONS]
+
+Initialize dosapp's configuration.
+
+OPTIONS:
+  --no-edit  Skip editing environment files
+  --help     Show this help message
+  --overwrite Overwrite existing configuration
+  --refresh   Generate new task and conf files"
 }
 
 #
@@ -249,7 +271,16 @@ function run-install {
 }
 
 function help-install {
-  echo "USAGE: dosapp install [APP] [OPTIONS]"
+  echo "USAGE: dosapp install [APP] [OPTIONS]
+
+Set up the package and configuration for the app, and run its installer.
+
+OPTIONS:
+  --no-edit  Skip editing environment files
+  --help     Show this help message
+  --overwrite Overwrite existing configuration
+  --no-readme Skip displaying the README
+  --refresh   Generate new task and conf files"
 }
 
 #
@@ -257,18 +288,21 @@ function help-install {
 #
 
 function run-start {
-  if [ -n "${OVERWRITE}" ] || [ -n "${REFRESH}" ]; then
-    (cd "${DOSAPP_CONFIG_HOME}" && task init)
-    (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
-  else
-    log-info "To refresh the configuration, run 'dosapp start ${APP_NAME} --refresh'"
-  fi
+  require-app
+
+  refresh
 
   (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task start)
 }
 
 function help-start {
-  echo "USAGE: dosapp start [APP] [OPTIONS]"
+  echo "USAGE: dosapp start [APP] [OPTIONS]
+
+Start the application.
+
+OPTIONS:
+  --help     Show this help message
+  --refresh   Generate new task and conf files"
 }
 
 #
@@ -288,7 +322,14 @@ function run-link {
 }
 
 function help-link {
-  echo "USAGE: dosapp link [APP] [OPTIONS]"
+  echo "USAGE: dosapp link [APP] [OPTIONS]
+
+Create a script in ${DOSAPP_LINK_HOME} that starts the app.
+
+OPTIONS:
+  --help     Show this help message
+  --refresh  Generate new task and conf files
+  --remove   Remove the link"
 }
 
 #
