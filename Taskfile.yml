@@ -9,7 +9,7 @@ tasks:
   check:
     cmds:
       - shellcheck -x ./bin/dosapp ./install.sh
-
-  start:
+  install:
     cmds:
-      - PATH="$(pwd)/bin:${PATH}" ./bin/dosapp
+      - if [ -f ~/.local/bin/dosapp ]; then rm ~/.local/bin/dosapp; fi
+      - ln -s "$(pwd)/bin/dosapp" ~/.local/bin/dosapp

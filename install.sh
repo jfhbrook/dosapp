@@ -8,7 +8,7 @@ else
   git clone git@github.com:jfhbrook/dosapp.git ~/.local/share/dosapp
 fi
 
-ln -s ~/.local/share/dosapp/bin/dosapp ~/.local/bin/dosapp
+(cd ~/.local/share/dosapp && task install)
 
 if ! command -v dosapp &> /dev/null; then
   echo "Add the following to your PATH, in your shell profile:

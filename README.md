@@ -4,9 +4,19 @@ Manage DOSBox apps.
 
 ## Install
 
-Installing `dosapp` is currently a matter of cloning this repo and linking
-`./bin/dosapp` to a location in your `$PATH`. To YOLO that install, you can
-try running:
+First, make sure you have all the dependencies installed:
+
+- [DosBox-X](https://dosbox-x.com/) (or DOSBox with configuration)
+- `bash` - `dosapp` is currently written in Bash
+- [go-task](https://taskfile.dev)
+- [gomplate](https://gomplate.ca/)
+- `curl`
+- `7zz` - Packages currently only work with .7z files, but having `unzip` and
+  `tar` are probably good ideas as well
+
+Otherwise, installing `dosapp` is currently a matter of cloning this repo and
+running `task install` to link `./bin/dosapp` to `~/.local/bin/dosapp`. To
+YOLO that install, you can try running:
 
 ```sh
 bash <(curl -sSfL https://raw.githubusercontent.com/jfhbrook/dosapp/main/install.sh)
@@ -112,3 +122,10 @@ Here's a list of packages:
 - `wordperfect`
 - **TODO**: `turbo-pascal`
 - **TODO**: `dostodon`
+
+## Development
+
+This project contains a `Taskfile`, with two tasks:
+
+- `task check` - Run `shellcheck` against the shell scripts in the project.
+- `task install` - Symlink `./bin/dosapp` to `~/.local/bin/dosapp`.
