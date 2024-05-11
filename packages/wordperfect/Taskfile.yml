@@ -6,6 +6,9 @@ tasks:
       - mkdir -p "${DOSAPP_STATE_HOME}/apps/wordperfect"
       - mkdir -p "${DOSAPP_CONFIG_HOME}/apps/wordperfect"
       - mkdir -p "${DOSAPP_DOWNLOAD_HOME}"
+      - 'if [ -n "${DOSAPP_DISK_A:-}" ]; then mkdir -p "${DOSAPP_DISK_A}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_B:-}" ]; then mkdir -p "${DOSAPP_DISK_B}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_C:-}" ]; then mkdir -p "${DOSAPP_DISK_C}"; else echo "DISAPP_DISK_C is required"; exit 1; fi'
       - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf"'
       - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/install.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/wordperfect/install.conf"'
       - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/wordperfect/start.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/wordperfect/start.conf"'
