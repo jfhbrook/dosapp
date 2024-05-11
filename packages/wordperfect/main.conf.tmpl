@@ -33,6 +33,7 @@ pcspeaker=true
 pcrate=44100
 
 [autoexec]
-MOUNT A {{ .Env.DOSAPP_DISK_A }}
-MOUNT C {{ .Env.DOSAPP_DISK_C }}
+{{ if .Env.DOSAPP_DISK_A }}MOUNT A {{ .Env.DOSAPP_DISK_A }}{{ end }}
+{{ if .Env.DOSAPP_DISK_B }}MOUNT B {{ .Env.DOSAPP_DISK_B }}{{ end }}
+{{ if .Env.DOSAPP_DISK_C }}MOUNT C {{ .Env.DOSAPP_DISK_C }}{{ end }}
 MOUNT D {{ .Env.DOSAPP_STATE_HOME }}/apps/wordperfect/cdrom

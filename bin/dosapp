@@ -2,36 +2,14 @@
 
 set -euo pipefail
 
-#
-# Configuration
-#
-
 # Inject default root with package installer
 export DOSAPP_ROOT=''
-
-function load-config {
-  export DOSAPP_ROOT="${DOSAPP_ROOT:-$(dirname $(dirname "$(readlink -f "${BASH_SOURCE[0]}")"))}"
-  export DOSAPP_CONFIG_HOME="${DOSAPP_CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}/dosapp}"
-
-  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ]; then
-    source "${DOSAPP_CONFIG_HOME}/dosapp.env"
-  fi
-
-  export DEBUG="${DEBUG:-}"
-  export DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}/dosapp}"
-  export DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}/dosapp}"
-  export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
-  export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
-  export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
-  export DOSAPP_DOWNLOAD_HOME="${DOSAPP_DOWNLOAD_HOME:-${DOSAPP_CACHE_HOME}/downloads}"
-  export EDITOR="${EDITOR:-vi}"
-}
-
-load-config
 
 #
 # Logging
 #
+
+export DEBUG="${DEBUG:-}"
 
 function log-debug {
   if [ -n "${DEBUG}" ]; then
@@ -43,8 +21,93 @@ function log-info {
   echo "INFO:" "$@"
 }
 
+function log-warn {
+  echo "WARN:" "$@"
+}
+
 function log-error {
-  echo "ERROR:" "$@" >&2
+  echo "ERROR:" "$@"
+}
+
+#
+# Configuration
+#
+
+function load-config {
+  export DOSAPP_ROOT="${DOSAPP_ROOT:-$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")")}"
+  export DOSAPP_CONFIG_HOME="${DOSAPP_CONFIG_HOME:-${XDG_CONFIG_HOME:-${HOME}/.config}/dosapp}"
+
+  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ]; then
+    # shellcheck disable=SC1091
+    source "${DOSAPP_CONFIG_HOME}/dosapp.env"
+  fi
+
+  export DEBUG="${DEBUG:-}"
+  export DOSAPP_DOSBOX_BIN="${DOSAPP_DOSBOX_BIN:-dosbox-x}"
+  export DOSAPP_7Z_BIN="${DOSAPP_7Z_BIN:-7zz}"
+  export DOSAPP_DATA_HOME="${DOSAPP_DATA_HOME:-${XDG_DATA_HOME:-${HOME}/.local/share}/dosapp}"
+  export DOSAPP_STATE_HOME="${DOSAPP_STATE_HOME:-${XDG_STATE_HOME:-${HOME}/.local/state}/dosapp}"
+  export DOSAPP_CACHE_HOME="${DOSAPP_CACHE_HOME:-${XDG_CACHE_HOME:-${HOME}/.cache}/dosapp}"
+  export DOSAPP_DISK_HOME="${DOSAPP_DISK_HOME:-~/dosapp}"
+  export DOSAPP_PACKAGE_HOME="${DOSAPP_PACKAGE_HOME:-${DOSAPP_ROOT}/packages}"
+  export DOSAPP_DOWNLOAD_HOME="${DOSAPP_DOWNLOAD_HOME:-${DOSAPP_CACHE_HOME}/downloads}"
+  export EDITOR="${EDITOR:-vi}"
+  export DOSAPP_DISK_A="${DOSAPP_DISK_A:-~/Documents}"
+  export DOSAPP_DISK_B="${DOSAPP_DISK_B:-}"
+  export DOSAPP_DISK_C="${DOSAPP_DISK_C:-~/dosapp}"
+}
+
+#
+# Command options
+#
+
+HELP=''
+EDIT='1'
+# FORCE=''
+OVERWRITE=''
+SUBCOMMAND=''
+APP_NAME=''
+
+function parse-argv {
+  log-debug "Parsing arguments:" "$@"
+  while [[ $# -gt 0 ]]; do
+    case "${1}" in
+      --no-edit)
+        EDIT=''
+        shift
+        ;;
+      # --force)
+      #   FORCE=1
+      #   shift
+      #   ;;
+      -h|--help)
+        HELP=1
+        shift
+        ;;
+      --overwrite)
+        OVERWRITE=1
+        shift
+        ;;
+      -*)
+        log-error "Unknown option: ${1}" 
+        exit 1
+        ;;
+      *)
+        if [ -z "${SUBCOMMAND}" ]; then
+          SUBCOMMAND="${1}"
+          shift
+        elif [[ "${SUBCOMMAND}" == install ]] \
+          || [[ "${SUBCOMMAND}" == start ]] \
+          || [[ "${SUBCOMMAND}" == link ]]; then
+          APP_NAME="${1}"
+          shift
+        else
+          log-error "Unknown argument: ${1}"
+          exit 1
+        fi
+        ;;
+    esac
+  done
 }
 
 #
@@ -64,32 +127,22 @@ function help-root {
 #
 
 function run-init {
-  local exit_overwrite=''
-
-  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${FORCE}" ]; then
-    log-error "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
-    exit_overwrite=1
-  fi
-
-  if [ -f "${DOSAPP_CONFIG_HOME}/Taskfile.yml" ] && [ -z "${FORCE}" ]; then
-    log-error "Taskfile already exists at ${DOSAPP_CONFIG_HOME}/Taskfile.yml"
-    exit_overwrite=1
-  fi
-
-  if [ -n "${exit_overwrite}" ]; then
-    log-info 'To overwrite the configuration, run `dosapp init --force`'
-    exit 1
-  fi
-
-  mkdir -p "${DOSAPP_CONFIG_HOME}"
-
-  cp "${DOSAPP_ROOT}/config/dosapp.env" "${DOSAPP_CONFIG_HOME}/dosapp.env"
-  log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/dosapp.env"
-
-  if [ -n "${EDITOR}" ]; then
-    ${EDITOR} "${DOSAPP_CONFIG_HOME}/dosapp.env"
+  if [ -f "${DOSAPP_CONFIG_HOME}/dosapp.env" ] && [ -z "${OVERWRITE}" ]; then
+    log-warn "Environment file already exists at ${DOSAPP_CONFIG_HOME}/dosapp.env"
+    log-warn "To overwrite the configuration, run 'dosapp init --overwrite'"
   else
-    log-info "EDITOR not defined. Skipping configuration."
+    cp "${DOSAPP_ROOT}/config/dosapp.env" "${DOSAPP_CONFIG_HOME}/dosapp.env"
+    log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/dosapp.env"
+  fi
+
+  if [ -n "${EDIT}" ]; then
+    if [ -n "${EDITOR}" ]; then
+      ${EDITOR} "${DOSAPP_CONFIG_HOME}/dosapp.env"
+    else
+      log-warn "EDITOR not defined. Skipping editing env file."
+    fi
+  else
+    log-info "Skipping editing env file."
   fi
 
   load-config
@@ -108,7 +161,22 @@ function help-init {
 #
 
 function run-install {
-  log-info "Install command"
+  mkdir -p "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}"
+
+  gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/dosapp.env.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
+  log-info "Environment file created at ${DOSAPP_CONFIG_HOME}/apps/dosapp.env"
+
+  if [ -n "${EDITOR}" ]; then
+    ${EDITOR} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
+  else
+    log-info "EDITOR not defined. Skipping configuration."
+  fi
+
+  cp "${DOSAPP_PACKAGE_HOME}/${APP_NAME}/Taskfile.yml" "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/Taskfile.yml"
+
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task init)
+
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task install)
 }
 
 function help-install {
@@ -151,94 +219,69 @@ function help-publish {
   echo "USAGE: dosapp publish [OPTIONS]"
 }
 
+
 #
-# Command options
+# Main
 #
 
-DEBUG="${DEBUG:-}"
+function main {
+  load-config
 
-HELP=''
-FORCE=''
-SUBCOMMAND=''
-APP_NAME=''
+  parse-argv "$@"
 
-while [[ $# -gt 0 ]]; do
-  case "${1}" in
-    --force)
-      FORCE=1
-      shift
-      ;;
-    -h|--help)
-      HELP=1
-      shift
-      ;;
-    -*)
-      log-error "Unknown option: ${1}" 
-      exit 1
-      ;;
-    *)
-      if [ -z "${SUBCOMMAND}" ]; then
-        SUBCOMMAND="${1}"
-        shift
-      elif [[ "${SUBCOMMAND}" == install ]] \
-        || [[ "${SUBCOMMAND}" == start ]] \
-        || [[ "${SUBCOMMAND}" == link ]]; then
-        APP_NAME="${1}"
-        shift
-      else
-        log-error "Unknown argument: ${1}"
+  if [ -n "${HELP}" ]; then
+    case "${SUBCOMMAND}" in
+      init)
+        help-init
+        ;;
+      install)
+        help-install
+        ;;
+      start)
+        help-start
+        ;;
+      link)
+        help-link
+        ;;
+      publish)
+        help-publish
+        ;;
+      *)
+        help-root
+        ;;
+    esac
+    exit 0
+  fi
+
+  if [ -z "${SUBCOMMAND}" ]; then
+    run-root
+  else
+    case "${SUBCOMMAND}" in
+      init)
+        run-init
+        ;;
+      install)
+        run-install
+        ;;
+      start)
+        run-start
+        ;;
+      link)
+        run-link
+        ;;
+      publish)
+        run-publish
+        ;;
+      *)
+        log-error "Unknown subcommand: ${SUBCOMMAND}"
         exit 1
-      fi
-      ;;
-  esac
-done
+        ;;
+    esac
+  fi
+}
 
-if [ -n "${HELP}" ]; then
-  case "${SUBCOMMAND}" in
-    init)
-      help-init
-      ;;
-    install)
-      help-install
-      ;;
-    start)
-      help-start
-      ;;
-    link)
-      help-link
-      ;;
-    publish)
-      help-publish
-      ;;
-    *)
-      help-root
-      ;;
-  esac
-  exit 0
-fi
+#
+# Giddyup.
+#
 
-if [ -z "${SUBCOMMAND}" ]; then
-  run-root
-else
-  case "${SUBCOMMAND}" in
-    init)
-      run-init
-      ;;
-    install)
-      run-install
-      ;;
-    start)
-      run-start
-      ;;
-    link)
-      run-link
-      ;;
-    publish)
-      run-publish
-      ;;
-    *)
-      log-error "Unknown subcommand: ${SUBCOMMAND}"
-      exit 1
-      ;;
-  esac
-fi
+main "$@"
