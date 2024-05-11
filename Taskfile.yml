@@ -1,0 +1,15 @@
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    deps: [check]
+
+  check:
+    cmds:
+      - shellcheck -x ./bin/dosapp
+
+  start:
+    cmds:
+      - PATH="$(pwd)/bin:${PATH}" ./bin/dosapp
