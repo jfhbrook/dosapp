@@ -31,6 +31,13 @@ tasks:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/install.conf"'
 
+  remove:
+    cmds:
+      - rm -r "${DOSAPP_DISK_C}/COREL/WP62"
+      - rm -r "${DOSAPP_DISK_C}/COREL/WP62DOS"
+      - echo "WARN: Not removing ${DOSAPP_DISK_C}/BTFONTS"
+      - echo "WARN: Not updating ${DOSAPP_DISK_C}/AUTOEXEC.BAT"
+
   start:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/wordperfect/start.conf"'

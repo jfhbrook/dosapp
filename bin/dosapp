@@ -114,6 +114,7 @@ function parse-argv {
           SUBCOMMAND="${1}"
           shift
         elif [[ "${SUBCOMMAND}" == install ]] \
+          || [[ "${SUBCOMMAND}" == remove ]] \
           || [[ "${SUBCOMMAND}" == start ]] \
           || [[ "${SUBCOMMAND}" == link ]]; then
           APP_NAME="${1}"
@@ -301,10 +302,37 @@ function help-install {
 Set up the package and configuration for the app, and run its installer.
 
 OPTIONS:
-  --no-edit  Skip editing environment files
-  --help     Show this help message
+  --no-edit   Skip editing environment files
+  --help      Show this help message
   --overwrite Overwrite existing configuration
   --no-readme Skip displaying the README
+  --refresh   Generate new task and conf files"
+}
+
+#
+# Remove command
+#
+
+function run-remove {
+  require-app
+  require-app-installed
+  refresh-main
+  init-app-config
+  refresh-app
+
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task remove-link)
+  (cd "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" && task remove)
+  rm -r "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}"
+}
+
+function help-remove {
+  echo "USAGE: dosapp remove [APP] [OPTIONS]
+
+Unlink the app and remove its configuration.
+
+OPTIONS:
+  --help      Show this help message
+  --overwrite Overwrite existing configuration
   --refresh   Generate new task and conf files"
 }
 
@@ -378,6 +406,9 @@ function main {
       install)
         help-install
         ;;
+      remove)
+        help-remove
+        ;;
       start)
         help-start
         ;;
@@ -400,6 +431,9 @@ function main {
         ;;
       install)
         run-install
+        ;;
+      remove)
+        run-remove
         ;;
       start)
         run-start

@@ -36,6 +36,10 @@ tasks:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/install.conf"'
 
+  remove:
+    cmds:
+      - rm -r "${DOSAPP_DISK_C}/TP"
+
   start:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/start.conf"'

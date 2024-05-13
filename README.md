@@ -113,6 +113,15 @@ For example, to create a `wp` script that launches WordPerfect:
 dosapp link wordperfect
 ```
 
+### Remove the App
+
+To remove an app from your install, clean up any links and remove the
+configuration, run:
+
+```sh
+dosapp remove [APP_NAME]
+```
+
 ## Packages
 
 Here's a list of packages:
