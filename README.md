@@ -132,7 +132,6 @@ Here's a list of packages:
 - **TODO**: `freebasic`
 - **TODO**: [As-Easy-As](http://www.triusinc.com/forums/viewtopic.php?t=10)
 - **TODO**: [VGAPaint](https://www.bttr-software.de/products/vp386/)
-- **TODO**: [GrafX2](http://grafx2.chez.com/)
 
 ## Development
 
