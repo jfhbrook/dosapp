@@ -1,0 +1,42 @@
+version: '3'
+
+env:
+  TURBO_PASCAL_BIN: 'TURBO'
+
+dotenv: ['dosapp.env']
+
+tasks:
+  init:
+    cmds:
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/as-easy-as"
+      - mkdir -p "${DOSAPP_CONFIG_HOME}/apps/as-easy-as"
+      - mkdir -p "${DOSAPP_DOWNLOAD_HOME}"
+      - 'if [ -n "${DOSAPP_DISK_A:-}" ]; then mkdir -p "${DOSAPP_DISK_A}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_B:-}" ]; then mkdir -p "${DOSAPP_DISK_B}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_C:-}" ]; then mkdir -p "${DOSAPP_DISK_C}"; else echo "DISAPP_DISK_C is required"; exit 1; fi'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/as-easy-as/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/main.conf"'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/as-easy-as/install.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/install.conf"'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/as-easy-as/start.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/start.conf"'
+
+  download:
+    cmds:
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/as-easy-as/disk"
+      - rm -f "${DOSAPP_STATE_HOME}/apps/as-easy-as/disk/*"
+      - curl -L "http://www.triusinc.com/old_files/asa57.exe" -o "${DOSAPP_STATE_HOME}/apps/as-easy-as/disk/ASA57.exe"
+
+  install:
+    deps: [download]
+    cmds:
+      - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/install.conf"'
+
+  remove: {}
+
+  start:
+    cmds:
+      - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/as-easy-as/start.conf"'
+
+  link: {}
+
+  remove-link: {}
+
+
