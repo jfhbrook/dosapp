@@ -1,5 +1,7 @@
 # WordPerfect 6.2
 
+## Setup
+
 ### Settings
 
 The WordPerfect installer will prompt for the following options:

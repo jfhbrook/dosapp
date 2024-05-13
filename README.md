@@ -118,7 +118,7 @@ dosapp link wordperfect
 Here's a list of packages:
 
 - `wordperfect`
-- **TODO**: `turbo-pascal`
+- `turbo-pascal`
 - **TODO**: `dostodon`
 
 ## Development

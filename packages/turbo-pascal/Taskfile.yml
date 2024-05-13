@@ -1,0 +1,42 @@
+version: '3'
+
+env:
+  TURBO_PASCAL_BIN: 'TURBO'
+
+dotenv: ['dosapp.env']
+
+tasks:
+  init:
+    cmds:
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/turbo-pascal"
+      - mkdir -p "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal"
+      - mkdir -p "${DOSAPP_DOWNLOAD_HOME}"
+      - 'if [ -n "${DOSAPP_DISK_A:-}" ]; then mkdir -p "${DOSAPP_DISK_A}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_B:-}" ]; then mkdir -p "${DOSAPP_DISK_B}"; fi'
+      - 'if [ -n "${DOSAPP_DISK_C:-}" ]; then mkdir -p "${DOSAPP_DISK_C}"; else echo "DISAPP_DISK_C is required"; exit 1; fi'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf"'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/install.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/install.conf"'
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/start.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/start.conf"'
+
+  download:
+    cmds:
+      - 'if [ ! -f "${DOSAPP_DOWNLOAD_HOME}/turbo-pascal-7.0.1.7z" ]; then curl -L "https://winworldpc.com/download/a1fd01e4-767f-11ea-8c4a-fa163e9022f0/from/c3ae6ee2-8099-713d-3411-c3a6e280947e" -o "${DOSAPP_DOWNLOAD_HOME}/turbo-pascal-7.0.1.7z"; fi'
+
+  unpack:
+    deps: [download]
+    cmds:
+      - rm -rf "${DOSAPP_STATE_HOME}/apps/turbo-pascal/img"
+      - mkdir -p "${DOSAPP_STATE_HOME}/apps/turbo-pascal"
+      - mkdir -p "${DOSAPP_CACHE_HOME}/apps/turbo-pascal"
+      - ${DOSAPP_7Z_BIN} x "${DOSAPP_DOWNLOAD_HOME}/turbo-pascal-7.0.1.7z" "-o${DOSAPP_CACHE_HOME}/apps/turbo-pascal"
+      - mv "${DOSAPP_CACHE_HOME}/apps/turbo-pascal/Borland Turbo Pascal 7.01 (3.5-720k)" "${DOSAPP_STATE_HOME}/apps/turbo-pascal/img"
+
+  install:
+    deps: [unpack]
+    cmds:
+      - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/install.conf"'
+
+  start:
+    cmds:
+      - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/start.conf"'
+

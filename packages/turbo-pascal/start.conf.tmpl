@@ -1,0 +1,7 @@
+[autoexec]
+FILES = 20
+{{ if .Env.DOSAPP_DISK_A }}MOUNT A {{ .Env.DOSAPP_DISK_A }}{{ end }}
+A:
+PATH=C:\TP\BIN
+{{ .Env.TURBO_PASCAL_BIN }}
+EXIT
