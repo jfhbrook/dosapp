@@ -40,3 +40,13 @@ tasks:
     cmds:
       - '"${DOSAPP_DOSBOX_BIN}" -userconf -conf "${DOSAPP_CONFIG_HOME}/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf" -conf "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/start.conf"'
 
+  link:
+    cmds:
+      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/bin/turbo.tmpl")" > "${DOSAPP_LINK_HOME}/turbo"'
+      - chmod +x "${DOSAPP_LINK_HOME}/turbo"
+
+  remove-link:
+    cmds:
+      - rm -f "${DOSAPP_LINK_HOME}/turbo"
+
+

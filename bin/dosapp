@@ -139,6 +139,18 @@ function require-app {
 }
 
 #
+# Require that an app is installed
+#
+
+function require-app-installed {
+  if [ ! -d "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}" ]; then
+    log-error "${APP_NAME} not found. Did you install it?"
+    exit 1
+  fi
+}
+
+
+#
 # App config initialization and setup
 #
 
@@ -302,6 +314,7 @@ OPTIONS:
 
 function run-start {
   require-app
+  require-app-installed
   refresh-main
   init-app-config
   refresh-app
@@ -325,6 +338,7 @@ OPTIONS:
 
 function run-link {
   require-app
+  require-app-installed
   refresh-main
   init-app-config
   refresh-app
