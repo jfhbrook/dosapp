@@ -11,7 +11,7 @@ import (
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install [app]",
 	Short: "Install an application",
 	Long: `Set up the package and configuration for the app, and run its installer.`,
 	Args: cobra.ExactArgs(1),

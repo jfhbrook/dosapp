@@ -11,7 +11,7 @@ import (
 )
 
 var removeCmd = &cobra.Command{
-	Use:   "remove",
+	Use:   "remove [app]",
 	Short: "Remove an application",
 	Long: `Unlink the app and remove its configuration.`,
 	Args: cobra.ExactArgs(1),

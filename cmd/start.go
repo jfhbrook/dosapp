@@ -11,11 +11,12 @@ import (
 )
 
 var startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start [app]",
 	Short: "Start the application",
 	Long: `Start the DOS application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("TODO: pull app name from args")
+		fmt.Println("TODO: require that the app is installed")
 		fmt.Println("TODO: refresh main configuration")
 		fmt.Println("TODO: refresh main configuration")
 		fmt.Println("TODO: init app configuration")

@@ -11,7 +11,7 @@ import (
 )
 
 var linkCmd = &cobra.Command{
-	Use:   "link",
+	Use:   "link [app]",
 	Short: "Create a script that starts the app",
 	Long: `Create a script in DOSAPP_LINK_HOME that starts the application.`,
 	Run: func(cmd *cobra.Command, args []string) {
