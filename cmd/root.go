@@ -5,8 +5,8 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
-	"fmt"
 	"os"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -15,8 +15,8 @@ var rootCmd = &cobra.Command{
 	Short: "Manage DOSBox applications",
 	Long: `Install, run and link DOSBox applications using task and go templates.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: refresh main")
-		fmt.Println("TODO: start main")
+		log.Info().Msg("TODO: refresh main")
+		log.Info().Msg("TODO: start main")
 	},
 }
 

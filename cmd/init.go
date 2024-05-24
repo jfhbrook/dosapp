@@ -5,7 +5,7 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -14,10 +14,10 @@ var initCmd = &cobra.Command{
 	Short: "Initialize dosapp's configuration",
 	Long: `Initialize dosapp's main configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: Create env file")
-		fmt.Println("TODO: Edit env file")
-		fmt.Println("TODO: Reload config")
-		fmt.Println("TODO: Refresh main config")
+		log.Info().Msg("TODO: Create env file")
+		log.Info().Msg("TODO: Edit env file")
+		log.Info().Msg("TODO: Reload config")
+		log.Info().Msg("TODO: Refresh main config")
 	},
 }
 

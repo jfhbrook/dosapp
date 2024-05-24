@@ -5,8 +5,7 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -16,14 +15,14 @@ var removeCmd = &cobra.Command{
 	Long: `Unlink the app and remove its configuration.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: pull app name from args")
-		fmt.Println("TODO: require that the app is installed")
-		fmt.Println("TODO: refresh main configuration")
-		fmt.Println("TODO: init app configuration")
-		fmt.Println("TODO: refresh app configuration")
-		fmt.Println("TODO: run remove-link task")
-		fmt.Println("TODO: run remove task")
-		fmt.Println("TODO: rm -rf the app")
+		log.Info().Msg("TODO: pull app name from args")
+		log.Info().Msg("TODO: require that the app is installed")
+		log.Info().Msg("TODO: refresh main configuration")
+		log.Info().Msg("TODO: init app configuration")
+		log.Info().Msg("TODO: refresh app configuration")
+		log.Info().Msg("TODO: run remove-link task")
+		log.Info().Msg("TODO: run remove task")
+		log.Info().Msg("TODO: rm -rf the app")
 	},
 }
 
