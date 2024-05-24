@@ -29,6 +29,9 @@ var installCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(installCmd)
 
+	// NOTE: Bash dosapp uses --no-edit and --no-docs here. In this case, you
+	// would need to call --edit=false or -e=false. It's not my favorite, but
+	// seems to play well with go idioms.
 	installCmd.Flags().BoolP("edit", "e", true, "Edit environment files")
 	installCmd.Flags().BoolP("overwrite", "o", false, "Overwrite existing configuration")
 	installCmd.Flags().BoolP("docs", "d", true, "Display the README")
