@@ -8,8 +8,17 @@ tasks:
 
   check:
     cmds:
-      - shellcheck -x ./bin/dosapp ./install.sh
+      - shellcheck -x ./install.sh
+      - go vet .
+
+  format:
+    cmds:
+      - go fmt .
+
   install:
     cmds:
-      - if [ -f ~/.local/bin/dosapp ]; then rm ~/.local/bin/dosapp; fi
-      - ln -s "$(pwd)/bin/dosapp" ~/.local/bin/dosapp
+      - go install .
+
+  start:
+    cmds:
+      - go run .
