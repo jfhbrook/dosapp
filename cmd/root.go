@@ -4,6 +4,7 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
+	"github.com/jfhbrook/dosapp/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -11,14 +12,15 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "dosapp",
+	Use:     "dosapp",
 	Version: "2.0.0",
-	Short: "Manage DOSBox applications",
-	Long:  `Install, run and link DOSBox applications using task and go templates.`,
+	Short:   "Manage DOSBox applications",
+	Long:    `Install, run and link DOSBox applications using task and go templates.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		config.LoadConfig()
 		level := cmd.Flag("log-level").Value.String()
 		switch level {
 		case "trace":
