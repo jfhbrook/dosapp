@@ -12,6 +12,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "dosapp",
+	Version: "2.0.0",
 	Short: "Manage DOSBox applications",
 	Long:  `Install, run and link DOSBox applications using task and go templates.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
