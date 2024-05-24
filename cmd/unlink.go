@@ -10,22 +10,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var linkCmd = &cobra.Command{
-	Use:   "link",
-	Short: "Create a script that starts the app",
-	Long: `Create a script in DOSAPP_LINK_HOME that starts the application.`,
+var unlinkCmd = &cobra.Command{
+	Use:   "unlink",
+	Short: "Remove a link",
+	Long: `Remove a link created with 'dosapp link APP_NAME'.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: pull app name from args")
+		fmt.Println("unlink called")
+  	fmt.Println("TODO: pull app name from args")
 		fmt.Println("TODO: require that the app is installed")
 		fmt.Println("TODO: refresh main configuration")
 		fmt.Println("TODO: init app configuration")
 		fmt.Println("TODO: refresh app configuration")
-		fmt.Println("TODO: run link task")
+		fmt.Println("TODO: run remove-link task")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(linkCmd)
+	rootCmd.AddCommand(unlinkCmd)
 
-	linkCmd.Flags().BoolP("refresh", "r", false, "Refresh task and conf files")
+	unlinkCmd.Flags().BoolP("refresh", "r", false, "Refresh task and conf files")
 }
