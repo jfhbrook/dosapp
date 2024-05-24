@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
-
 */
 package cmd
 
@@ -12,7 +11,7 @@ import (
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize dosapp's configuration",
-	Long: `Initialize dosapp's main configuration.`,
+	Long:  `Initialize dosapp's main configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("TODO: Create env file")
 		log.Info().Msg("TODO: Edit env file")

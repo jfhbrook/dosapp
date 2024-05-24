@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
-
 */
 package cmd
 
@@ -12,7 +11,7 @@ import (
 var linkCmd = &cobra.Command{
 	Use:   "link [app]",
 	Short: "Create a script that starts the app",
-	Long: `Create a script in DOSAPP_LINK_HOME that starts the application.`,
+	Long:  `Create a script in DOSAPP_LINK_HOME that starts the application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("TODO: pull app name from args")
 		log.Info().Msg("TODO: require that the app is installed")

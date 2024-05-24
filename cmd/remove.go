@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
-
 */
 package cmd
 
@@ -12,8 +11,8 @@ import (
 var removeCmd = &cobra.Command{
 	Use:   "remove [app]",
 	Short: "Remove an application",
-	Long: `Unlink the app and remove its configuration.`,
-	Args: cobra.ExactArgs(1),
+	Long:  `Unlink the app and remove its configuration.`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("TODO: pull app name from args")
 		log.Info().Msg("TODO: require that the app is installed")

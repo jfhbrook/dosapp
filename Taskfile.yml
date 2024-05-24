@@ -9,11 +9,11 @@ tasks:
   check:
     cmds:
       - shellcheck -x ./install.sh
-      - go vet .
+      - find . -name '*.go' -exec go vet '{}' ';'
 
   format:
     cmds:
-      - go fmt .
+      - find . -name '*.go' -exec go fmt '{}' ';'
 
   install:
     cmds:

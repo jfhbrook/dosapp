@@ -1,6 +1,5 @@
 /*
 Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
-
 */
 package cmd
 
@@ -12,8 +11,8 @@ import (
 var installCmd = &cobra.Command{
 	Use:   "install [app]",
 	Short: "Install an application",
-	Long: `Set up the package and configuration for the app, and run its installer.`,
-	Args: cobra.ExactArgs(1),
+	Long:  `Set up the package and configuration for the app, and run its installer.`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info().Msg("TODO: pull app name from args")
 		log.Info().Msg("TODO: refresh main configuration")
