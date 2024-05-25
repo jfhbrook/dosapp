@@ -27,8 +27,6 @@ type Config struct {
 	DiskC        string
 }
 
-// TODO: Create a struct for the config
-
 func getEnv(key string, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
