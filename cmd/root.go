@@ -20,8 +20,11 @@ var rootCmd = &cobra.Command{
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		config.LoadConfig()
+		conf := config.LoadConfig()
 		level := cmd.Flag("log-level").Value.String()
+		if level == "" {
+			level = conf.LogLevel
+		}
 		switch level {
 		case "trace":
 			zerolog.SetGlobalLevel(zerolog.TraceLevel)
@@ -38,8 +41,36 @@ var rootCmd = &cobra.Command{
 		case "panic":
 			zerolog.SetGlobalLevel(zerolog.PanicLevel)
 		default:
-			log.Fatal().Str("log-level", level).Msg("Invalid log level")
+			log.Fatal().Str("DOSAPP_LOG_LEVEL", level).Msg("Invalid log level")
 		}
+
+		log.Debug().Str(
+			"DOSAPP_LOG_LEVEL", conf.LogLevel,
+		).Str(
+			"DOSAPP_DOSBOX_BIN", conf.DosBoxBin,
+		).Str(
+			"DOSAPP_7Z_BIN", conf.SevenZipBin,
+		).Str(
+			"DOSAPP_DATA_HOME", conf.DataHome,
+		).Str(
+			"DOSAPP_STATE_HOME", conf.StateHome,
+		).Str(
+			"DOSAPP_CACHE_HOME", conf.CacheHome,
+		).Str(
+			"DOSAPP_LINK_HOME", conf.LinkHome,
+		).Str(
+			"DOSAPP_PACKAGE_HOME", conf.PackageHome,
+		).Str(
+			"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
+		).Str(
+			"PAGER", conf.Pager,
+		).Str(
+			"DOSBOX_DISK_A", conf.DiskA,
+		).Str(
+			"DOSBOX_DISK_B", conf.DiskB,
+		).Str(
+			"DOSBOX_DISK_C", conf.DiskC,
+		).Msg("Loaded config")
 
 		log.Info().Msg("TODO: refresh main")
 		log.Info().Msg("TODO: start main")
@@ -54,6 +85,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().String("log-level", "info", "Logging level")
+	rootCmd.PersistentFlags().String("log-level", "", "Logging level")
 	rootCmd.Flags().BoolP("refresh", "r", false, "Generate new task and conf files")
 }
