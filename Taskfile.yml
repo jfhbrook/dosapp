@@ -9,7 +9,7 @@ tasks:
   check:
     cmds:
       - shellcheck -x ./install.sh
-      - find . -name '*.go' -exec go vet '{}' ';'
+      - go vet .
 
   format:
     cmds:
