@@ -13,6 +13,7 @@ import (
 )
 
 type Config struct {
+	ConfigHome   string
 	LogLevel     string
 	DosBoxBin    string
 	SevenZipBin  string
@@ -37,16 +38,16 @@ func getEnv(key string, fallback string) string {
 }
 
 func LoadConfig() Config {
-	config_home := os.Getenv("DOSAPP_CONFIG_HOME")
-	if config_home == "" {
+	configHome := os.Getenv("DOSAPP_CONFIG_HOME")
+	if configHome == "" {
 		if xdg_config_home, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
-			config_home = filepath.Join(xdg_config_home, "dosapp")
+			configHome = filepath.Join(xdg_config_home, "dosapp")
 		} else {
-			config_home = filepath.Join(os.Getenv("HOME"), ".config", "dosapp")
+			configHome = filepath.Join(os.Getenv("HOME"), ".config", "dosapp")
 		}
 	}
 
-	godotenv.Load(filepath.Join(config_home, "dosapp.env"))
+	godotenv.Load(filepath.Join(configHome, "dosapp.env"))
 
 	logLevel := getEnv("DOSAPP_LOG_LEVEL", "")
 	dosBoxBin := getEnv("DOSAPP_DOSBOX_BIN", "dosbox-x")
@@ -54,8 +55,8 @@ func LoadConfig() Config {
 
 	dataHome := getEnv("DOSAPP_DATA_HOME", "")
 	if dataHome == "" {
-		if xdg_data_home, ok := os.LookupEnv("XDG_DATA_HOME"); ok {
-			dataHome = filepath.Join(xdg_data_home, "dosapp")
+		if xdgDataHome, ok := os.LookupEnv("XDG_DATA_HOME"); ok {
+			dataHome = filepath.Join(xdgDataHome, "dosapp")
 		} else {
 			dataHome = filepath.Join(os.Getenv("HOME"), ".local", "share", "dosapp")
 		}
@@ -63,8 +64,8 @@ func LoadConfig() Config {
 
 	stateHome := os.Getenv("DOSAPP_STATE_HOME")
 	if stateHome == "" {
-		if xdg_state_home, ok := os.LookupEnv("XDG_STATE_HOME"); ok {
-			stateHome = filepath.Join(xdg_state_home, "dosapp")
+		if xdgStateHome, ok := os.LookupEnv("XDG_STATE_HOME"); ok {
+			stateHome = filepath.Join(xdgStateHome, "dosapp")
 		} else {
 			stateHome = filepath.Join(os.Getenv("HOME"), ".local", "state", "dosapp")
 		}
@@ -93,6 +94,7 @@ func LoadConfig() Config {
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
 
 	return Config{
+		configHome,
 		logLevel,
 		dosBoxBin,
 		sevenZipBin,
@@ -116,10 +118,9 @@ func EditConfig(editor *string, file *string) error {
 	}
 
 	cmd := exec.Command(*editor, *file)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		return err
-	}
-
-	return nil
+	return cmd.Run()
 }
