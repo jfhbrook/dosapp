@@ -80,10 +80,9 @@ func LoadConfig() Config {
 	diskHome := getEnv("DOSAPP_DISK_HOME", filepath.Join(os.Getenv("HOME"), "dosapp"))
 	linkHome := getEnv("DOSAPP_LINK_HOME", filepath.Join(os.Getenv("HOME"), ".local", "bin"))
 
-	// TODO: Need a package location, since go bin won't be in our source
-	// directory. Maybe time to bite off downloading packages in bash?
-	// Or support URLs starting with file:// ?
-	packageHome := getEnv("DOSAPP_PACKAGE_HOME", "./packages")
+	// TODO: This needs to be manually overridden in the config to point to this
+	// repo. Eventually, I'll implement package downloads from github releases.
+	packageHome := getEnv("DOSAPP_PACKAGE_HOME", filepath.Join(stateHome, "packages"))
 
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
 	pager := getEnv("PAGER", "cat")
