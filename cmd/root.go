@@ -25,6 +25,9 @@ var rootCmd = &cobra.Command{
 		if level == "" {
 			level = conf.LogLevel
 		}
+		if level == "" {
+			level = "info"
+		}
 		switch level {
 		case "trace":
 			zerolog.SetGlobalLevel(zerolog.TraceLevel)
