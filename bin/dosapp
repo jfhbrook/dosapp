@@ -449,7 +449,8 @@ function run-publish {
   tar -czf "${tag}.tar.gz" ${argv[@]} .
 
   gh release create "${tag}" \
-    -t "${name} v${version} (release ${release_version})" \
+    -t "${name} v${version} - release ${release_version}" \
+    --notes "Package ${name} v${version}, release ${release_version}." \
     "${tag}.tar.gz"
 }
 
