@@ -18,16 +18,15 @@ var rootCmd = &cobra.Command{
 	Long:    `Install, run and link DOSBox applications using task and go templates.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		conf := config.LoadConfig()
 		level := cmd.Flag("log-level").Value.String()
+
 		if level == "" {
-			level = conf.LogLevel
+			level = os.Getenv("DOSAPP_LOG_LEVEL")
 		}
 		if level == "" {
 			level = "info"
 		}
+
 		switch level {
 		case "trace":
 			zerolog.SetGlobalLevel(zerolog.TraceLevel)
@@ -46,7 +45,9 @@ var rootCmd = &cobra.Command{
 		default:
 			log.Fatal().Str("DOSAPP_LOG_LEVEL", level).Msg("Invalid log level")
 		}
-
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := config.LoadConfig()
 		log.Debug().Str(
 			"DOSAPP_LOG_LEVEL", conf.LogLevel,
 		).Str(
