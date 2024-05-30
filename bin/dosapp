@@ -237,6 +237,7 @@ SUBCOMMANDS:
   install   Configure an app and run its installer
   start     Start an app
   link      Create a script that starts the app
+  publish   Publish a package with GitHub releases
 
 OPTIONS:
   --help     Show this help message
@@ -390,6 +391,80 @@ OPTIONS:
 }
 
 #
+# Publish command
+#
+
+function run-publish {
+  local name
+  local version
+  local release_version
+
+  if [ ! -f 'Package.yml' ]; then
+    log-error "Package.yml not found."
+    exit 1
+  fi
+
+  name="$(yq '.name' 'Package.yml')"
+  version="$(yq '.version' 'Package.yml')"
+  release_version="$(yq '.release_version' 'Package.yml')"
+
+  local missing_fields=""
+
+  if [[ "${name}" == null ]]; then
+    if [ -n "${missing_fields}" ]; then
+      missing_fields+=", "
+    fi
+    missing_fields+=name
+  fi
+
+  if [[ "${version}" == null ]]; then
+    if [ -n "${missing_fields}" ]; then
+      missing_fields+=", "
+    fi
+    missing_fields+=version
+  fi
+  
+  if [[ "${release_version}" == null ]]; then
+    if [ -n "${missing_fields}" ]; then
+      missing_fields+=", "
+    fi
+    missing_fields+=release_version
+  fi
+
+  if [ -n "${missing_fields}" ]; then
+    log-error "Package.yml must define: ${missing_fields}"
+    exit 1
+  fi
+
+  # TODO: Allow listing included files in Package.yml
+
+  local tag="${name}-${version}-${release_version}"
+  local argv=(--exclude "${tag}.tar.gz")
+
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    argv+=(-s ",^,${tag}/,")
+  else
+    argv+=(--transform 's,^,${tag}/,')
+  fi
+
+  tar -czf "${tag}.tar.gz" ${argv[@]} .
+
+  gh release create "${tag}" \
+    -t "${name} v${version} - release ${release_version}" \
+    --notes "Package ${name} v${version}, release ${release_version}." \
+    "${tag}.tar.gz"
+}
+
+function help-publish {
+  echo "USAGE: dosapp publish
+
+Publish the current app by creating and uploading a GitHub release.
+
+OPTIONS:
+  --help     Show this help message"
+}
+
+#
 # Main
 #
 
@@ -414,6 +489,9 @@ function main {
         ;;
       link)
         help-link
+        ;;
+      publish)
+        help-publish
         ;;
       *)
         help-root
@@ -440,6 +518,9 @@ function main {
         ;;
       link)
         run-link
+        ;;
+      publish)
+        run-publish
         ;;
       *)
         log-error "Unknown subcommand: ${SUBCOMMAND}"
