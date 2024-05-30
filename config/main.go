@@ -4,7 +4,9 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package config
 
 import (
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/joho/godotenv"
@@ -106,6 +108,18 @@ func LoadConfig() Config {
 		diskB,
 		diskC,
 	}
+}
 
-	// TODO: Populate and return a config struct
+func EditConfig(editor *string, file *string) error {
+	if *editor == "" {
+		return errors.New("No editor specified.")
+	}
+
+	cmd := exec.Command(*editor, *file)
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }
