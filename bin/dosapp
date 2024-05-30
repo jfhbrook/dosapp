@@ -237,6 +237,7 @@ SUBCOMMANDS:
   install   Configure an app and run its installer
   start     Start an app
   link      Create a script that starts the app
+  publish   Publish a package with GitHub releases
 
 OPTIONS:
   --help     Show this help message
