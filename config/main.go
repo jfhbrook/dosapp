@@ -28,7 +28,7 @@ type Config struct {
 }
 
 func getEnv(key string, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value := os.Getenv(key); value != "" {
 		return value
 	}
 	return fallback
