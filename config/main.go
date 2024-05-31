@@ -11,7 +11,8 @@ import (
 	"path/filepath"
 
 	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
+
+	"github.com/jfhbrook/dosapp/task"
 )
 
 //go:embed dosapp.env
@@ -135,6 +136,28 @@ func editConfig(file string) error {
 	return cmd.Run()
 }
 
+func (conf Config) Environ() []string {
+	env := []string{
+		"DOSAPP_CONFIG_HOME=" + conf.ConfigHome,
+		"DOSAPP_LOG_LEVEL=" + conf.LogLevel,
+		"DOSAPP_DOSBOX_BIN=" + conf.DosBoxBin,
+		"DOSAPP_7Z_BIN=" + conf.SevenZipBin,
+		"DOSAPP_DATA_HOME=" + conf.DataHome,
+		"DOSAPP_STATE_HOME=" + conf.StateHome,
+		"DOSAPP_CACHE_HOME=" + conf.CacheHome,
+		"DOSAPP_DISK_HOME=" + conf.DiskHome,
+		"DOSAPP_LINK_HOME=" + conf.LinkHome,
+		"DOSAPP_PACKAGE_HOME=" + conf.PackageHome,
+		"DOSAPP_DOWNLOAD_HOME=" + conf.DownloadHome,
+		"PAGER=" + conf.Pager,
+		"DOSAPP_DISK_A=" + conf.DiskA,
+		"DOSAPP_DISK_B=" + conf.DiskB,
+		"DOSAPP_DISK_C=" + conf.DiskC,
+	}
+
+	return append(os.Environ(), env...)
+}
+
 func (conf Config) WriteEnvFile() error {
 	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
 	return os.WriteFile(envPath, envFile, 0644)
@@ -167,7 +190,9 @@ func (conf Config) Refresh() error {
 	if err != nil {
 		return err
 	}
-	log.Info().Msg("run task init")
+
+	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	task.Run(taskPath, conf.Environ(), "init")
 
 	return nil
 }
