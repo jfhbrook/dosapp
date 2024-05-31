@@ -67,7 +67,7 @@ func (app *App) WriteEnvFile() error {
 
 func (app *App) EditEnvFile() error {
 	envPath := app.EnvFilePath()
-	return editor.Edit(envPath)
+	return app.Config.Editor.Edit(envPath)
 }
 
 func (app *App) EnvFileExists() bool {
@@ -110,7 +110,7 @@ func (app *App) CopyDocs() error {
 
 func (app *App) ShowDocs() error {
 	docsPath := app.DocsPath()
-	return pager.Show(docsPath)
+	return app.Config.Pager.Show(docsPath)
 }
 
 func (app *App) Refresh() error {

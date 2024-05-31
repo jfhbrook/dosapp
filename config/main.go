@@ -40,6 +40,8 @@ type Config struct {
 	DiskA        string
 	DiskB        string
 	DiskC        string
+	Editor       *editor.Editor
+	Pager        *pager.Pager
 }
 
 func getEnv(key string, fallback string) string {
@@ -132,7 +134,13 @@ func LoadConfig() Config {
 	diskB := getEnv("DOSAPP_DISK_B", "")
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
 
-	return Config{
+	edBin := os.Getenv("EDITOR")
+	pgBin := os.Getenv("PAGER")
+
+	ed := editor.NewEditor(os.Getenv("EDITOR"))
+	pg := pager.NewPager(os.Getenv("PAGER"))
+
+	conf := Config{
 		mustExpandUser(root),
 		mustExpandUser(configHome),
 		logLevel,
@@ -148,7 +156,41 @@ func LoadConfig() Config {
 		mustExpandUser(diskA),
 		mustExpandUser(diskB),
 		mustExpandUser(diskC),
+		ed,
+		pg,
 	}
+
+	log.Debug().Str(
+		"DOSAPP_LOG_LEVEL", conf.LogLevel,
+	).Str(
+		"DOSAPP_DOSBOX_BIN", conf.DosBoxBin,
+	).Str(
+		"DOSAPP_7Z_BIN", conf.SevenZipBin,
+	).Str(
+		"DOSAPP_DATA_HOME", conf.DataHome,
+	).Str(
+		"DOSAPP_STATE_HOME", conf.StateHome,
+	).Str(
+		"DOSAPP_CACHE_HOME", conf.CacheHome,
+	).Str(
+		"DOSAPP_LINK_HOME", conf.LinkHome,
+	).Str(
+		"DOSAPP_PACKAGE_HOME", conf.PackageHome,
+	).Str(
+		"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
+	).Str(
+		"DOSBOX_DISK_A", conf.DiskA,
+	).Str(
+		"DOSBOX_DISK_B", conf.DiskB,
+	).Str(
+		"DOSBOX_DISK_C", conf.DiskC,
+	).Str(
+		"EDITOR", edBin,
+	).Str(
+		"PAGER", pgBin,
+	).Msg("Loaded config")
+
+	return &conf
 }
 
 func (conf *Config) Environ() []string {
@@ -184,7 +226,7 @@ func (conf *Config) WriteEnvFile() error {
 
 func (conf *Config) EditEnvFile() error {
 	envPath := conf.EnvFilePath()
-	return editor.Edit(envPath)
+	return conf.Editor.Edit(envPath)
 }
 
 func (conf *Config) EnvFileExists() bool {

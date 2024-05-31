@@ -9,14 +9,22 @@ import (
 	"os/exec"
 )
 
-func Edit(file string) error {
-	editor := os.Getenv("EDITOR")
+type Editor struct {
+	Bin string
+}
 
-	if editor == "" {
+func NewEditor(bin string) *Editor {
+	return &Editor{
+		Bin: bin,
+	}
+}
+
+func (editor *Editor) Edit(file string) error {
+	if editor.Bin == "" {
 		return errors.New("No editor specified.")
 	}
 
-	cmd := exec.Command(editor, file)
+	cmd := exec.Command(editor.Bin, file)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
