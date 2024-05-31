@@ -55,6 +55,8 @@ var installCmd = &cobra.Command{
 		if docsFlag {
 			// app.ShowDocs()
 		}
+
+		// app.Run("install")
 	},
 }
 

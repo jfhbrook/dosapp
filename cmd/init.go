@@ -39,8 +39,7 @@ var initCmd = &cobra.Command{
 		conf = config.LoadConfig()
 
 		if !refreshFlag && conf.TaskFileExists() {
-			// TODO: conf.TaskFilePath
-			log.Warn().Msgf("Taskfile already exists at %s/Taskfile.yml", conf.ConfigHome)
+			log.Warn().Msgf("Taskfile already exists at %s", conf.TaskFilePath())
 			log.Warn().Msg("To refresh the configuration, run 'dosapp init --refresh'")
 		} else {
 			refreshFlag = true
@@ -51,8 +50,6 @@ var initCmd = &cobra.Command{
 				log.Panic().Err(err).Msg("Failed to refresh config")
 			}
 		}
-
-		// app.Run("install")
 	},
 }
 

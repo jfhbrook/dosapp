@@ -193,24 +193,32 @@ func (conf *Config) Environ() []string {
 	return append(os.Environ(), env...)
 }
 
+func (conf *Config) EnvVarPath() string {
+	return filepath.Join(conf.ConfigHome, "dosapp.env")
+}
+
 func (conf *Config) WriteEnvFile() error {
-	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	envPath := conf.EnvVarPath()
 	return os.WriteFile(envPath, envFile, 0644)
 }
 
 func (conf *Config) EditEnvFile() error {
-	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	envPath := conf.EnvVarPath()
 	return editConfig(envPath)
 }
 
 func (conf *Config) EnvFileExists() bool {
-	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	envPath := conf.EnvVarPath()
 	_, err := os.Stat(envPath)
 	return err == nil
 }
 
+func (conf *Config) TaskFilePath() string {
+	return filepath.Join(conf.ConfigHome, "Taskfile.yml")
+}
+
 func (conf *Config) WriteTaskFile() error {
-	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	taskPath := conf.TaskFilePath()
 	return os.WriteFile(taskPath, taskFile, 0644)
 }
 
@@ -230,6 +238,6 @@ func (conf *Config) Refresh() error {
 }
 
 func (conf *Config) Run(args ...string) error {
-	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	taskPath := conf.TaskFilePath()
 	return task.Run(taskPath, conf.Environ(), args...)
 }
