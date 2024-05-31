@@ -25,6 +25,8 @@ var envFile []byte
 var taskFile []byte
 
 type Config struct {
+	// TODO: Root is only necessary until I move templating into dosapp
+	Root         string
 	ConfigHome   string
 	LogLevel     string
 	DosBoxBin    string
@@ -87,6 +89,8 @@ func LoadConfig() Config {
 
 	godotenv.Load(filepath.Join(configHome, "dosapp.env"))
 
+	root := getEnv("DOSAPP_ROOT", "")
+
 	logLevel := getEnv("DOSAPP_LOG_LEVEL", "")
 	dosBoxBin := getEnv("DOSAPP_DOSBOX_BIN", "dosbox-x")
 	sevenZipBin := getEnv("DOSAPP_7Z_BIN", "7zz")
@@ -132,6 +136,7 @@ func LoadConfig() Config {
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
 
 	return Config{
+		mustExpandUser(root),
 		mustExpandUser(configHome),
 		logLevel,
 		mustExpandUser(dosBoxBin),
@@ -167,6 +172,7 @@ func editConfig(file string) error {
 
 func (conf Config) Environ() []string {
 	env := []string{
+		"DOSAPP_ROOT=" + conf.Root,
 		"DOSAPP_CONFIG_HOME=" + conf.ConfigHome,
 		"DOSAPP_LOG_LEVEL=" + conf.LogLevel,
 		"DOSAPP_DOSBOX_BIN=" + conf.DosBoxBin,
