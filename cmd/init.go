@@ -11,33 +11,45 @@ import (
 	"path/filepath"
 )
 
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize dosapp's configuration",
 	Long:  `Initialize dosapp's main configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
+		envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
 
-		// TODO: Does env file exist?
-		// TODO: Is overwrite flag set?
+		editFlag, _ := cmd.Flags().GetBool("edit")
+		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
+		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		log.Info().Msg("TODO: Create env file")
+		if exists(envFile) && !overwriteFlag {
+			log.Warn().Msgf("Environment file already exists at %s/dosapp.env", conf.ConfigHome)
+			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
+		} else {
+			refreshFlag = true
+			log.Info().Msg("TODO: Create env file")
+		}
 
-		if edit, err := cmd.Flags().GetBool("edit"); err != nil && edit {
-		  editor := os.Getenv("EDITOR")
-		  file := filepath.Join(conf.ConfigHome, "dosapp.env")
+		if editFlag {
+			editor := os.Getenv("EDITOR")
 
-			if err := config.EditConfig(&editor, &file); err != nil {
+			if err := config.EditConfig(&editor, &envFile); err != nil {
 				log.Panic().Err(err).Msg("Failed to edit config file")
 			}
 		}
 
 		conf = config.LoadConfig()
 
-		log.Info().Msg("TODO: Reload config")
-
-		if err := config.RefreshMain(&conf); err != nil {
-			log.Panic().Err(err).Msg("Failed to reload config")
+		if refreshFlag {
+			if err := config.RefreshMain(&conf); err != nil {
+				log.Panic().Err(err).Msg("Failed to reload config")
+			}
 		}
 	},
 }
@@ -46,5 +58,6 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 
 	initCmd.Flags().BoolP("edit", "e", true, "Edit environment files")
+	initCmd.Flags().BoolP("overwrite", "o", false, "Overwrite existing configuration")
 	initCmd.Flags().BoolP("refresh", "r", false, "Generate new task and conf files")
 }
