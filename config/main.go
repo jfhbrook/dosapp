@@ -112,12 +112,14 @@ func LoadConfig() Config {
 	}
 }
 
-func EditConfig(editor *string, file *string) error {
-	if *editor == "" {
+func EditConfig(file string) error {
+	editor := os.Getenv("EDITOR")
+
+	if editor == "" {
 		return errors.New("No editor specified.")
 	}
 
-	cmd := exec.Command(*editor, *file)
+	cmd := exec.Command(editor, file)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

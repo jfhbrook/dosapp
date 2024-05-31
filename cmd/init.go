@@ -37,9 +37,7 @@ var initCmd = &cobra.Command{
 		}
 
 		if editFlag {
-			editor := os.Getenv("EDITOR")
-
-			if err := config.EditConfig(&editor, &envFile); err != nil {
+			if err := config.EditConfig(envFile); err != nil {
 				log.Panic().Err(err).Msg("Failed to edit config file")
 			}
 		}
