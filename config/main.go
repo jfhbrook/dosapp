@@ -88,7 +88,9 @@ func NewConfig() *Config {
 		}
 	}
 
-	godotenv.Load(filepath.Join(configHome, "dosapp.env"))
+	// TODO: This call overwrites any env vars that are set from outside!
+	// This may be a sign to move away from dotenv and towards yaml.
+	godotenv.Overload(filepath.Join(configHome, "dosapp.env"))
 
 	root := getEnv("DOSAPP_ROOT", "")
 
