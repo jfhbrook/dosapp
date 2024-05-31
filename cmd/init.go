@@ -16,6 +16,7 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
 
+		editFlagChanged := cmd.Flags().Changed("edit")
 		editFlag, _ := cmd.Flags().GetBool("edit")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
@@ -30,20 +31,28 @@ var initCmd = &cobra.Command{
 			}
 		}
 
-		if editFlag {
-			if err := conf.EditEnvFile(); err != nil {
-				log.Panic().Err(err).Msg("Failed to edit config file")
-			}
-		}
-
-		conf = config.LoadConfig()
-
 		if !refreshFlag && conf.TaskFileExists() {
 			log.Warn().Msgf("Taskfile already exists at %s", conf.TaskFilePath())
 			log.Warn().Msg("To refresh the configuration, run 'dosapp init --refresh'")
 		} else {
 			refreshFlag = true
 		}
+
+		var shouldEdit bool
+
+		if refreshFlag {
+			shouldEdit = editFlag
+		} else {
+			shouldEdit = editFlag && editFlagChanged
+		}
+
+		if shouldEdit {
+			if err := conf.EditEnvFile(); err != nil {
+				log.Panic().Err(err).Msg("Failed to edit config file")
+			}
+		}
+
+		conf = config.LoadConfig()
 
 		if refreshFlag {
 			if err := conf.Refresh(); err != nil {
