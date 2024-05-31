@@ -127,13 +127,12 @@ func editConfig(file string) error {
 	return cmd.Run()
 }
 
-// TODO: Make these methods
-func EditMainConfig(conf *Config) error {
+func (conf Config) EditEnvFile() error {
 	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
 	return editConfig(envFile)
 }
 
-func MainConfigExists(conf *Config) bool {
+func (conf Config) EnvFileExists() bool {
 	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
 	_, err := os.Stat(envFile)
 	return err == nil

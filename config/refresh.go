@@ -13,9 +13,8 @@ import (
 //go:embed Taskfile.yml
 var taskfile []byte
 
-// NOTE: flags are checked in cmd
-func RefreshMain(config *Config) error {
-	err := os.WriteFile(filepath.Join(config.ConfigHome, "Taskfile.yml"), taskfile, 0644)
+func (conf Config) Refresh() error {
+	err := os.WriteFile(filepath.Join(conf.ConfigHome, "Taskfile.yml"), taskfile, 0644)
 	if err != nil {
 		return err
 	}

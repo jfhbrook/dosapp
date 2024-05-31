@@ -20,7 +20,7 @@ var initCmd = &cobra.Command{
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		if config.MainConfigExists(&conf) && !overwriteFlag {
+		if conf.EnvFileExists() && !overwriteFlag {
 			log.Warn().Msgf("Environment file already exists at %s/dosapp.env", conf.ConfigHome)
 			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
 		} else {
@@ -29,7 +29,7 @@ var initCmd = &cobra.Command{
 		}
 
 		if editFlag {
-			if err := config.EditMainConfig(&conf); err != nil {
+			if err := conf.EditEnvFile(); err != nil {
 				log.Panic().Err(err).Msg("Failed to edit config file")
 			}
 		}
@@ -37,7 +37,7 @@ var initCmd = &cobra.Command{
 		conf = config.LoadConfig()
 
 		if refreshFlag {
-			if err := config.RefreshMain(&conf); err != nil {
+			if err := conf.Refresh(); err != nil {
 				log.Panic().Err(err).Msg("Failed to reload config")
 			}
 		}
