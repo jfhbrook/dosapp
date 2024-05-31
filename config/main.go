@@ -112,7 +112,7 @@ func LoadConfig() Config {
 	}
 }
 
-func EditConfig(file string) error {
+func editConfig(file string) error {
 	editor := os.Getenv("EDITOR")
 
 	if editor == "" {
@@ -125,4 +125,16 @@ func EditConfig(file string) error {
 	cmd.Stderr = os.Stderr
 
 	return cmd.Run()
+}
+
+// TODO: Make these methods
+func EditMainConfig(conf *Config) error {
+	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
+	return editConfig(envFile)
+}
+
+func MainConfigExists(conf *Config) bool {
+	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
+	_, err := os.Stat(envFile)
+	return err == nil
 }
