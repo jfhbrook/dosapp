@@ -82,7 +82,7 @@ var installCmd = &cobra.Command{
 
 		if refreshFlag {
 			if err := app.Refresh(); err != nil {
-				log.Panic().Err(err).Msg("Failed to refresh config")
+				log.Panic().Err(err).Msg("Failed to refresh application config")
 			}
 		}
 
