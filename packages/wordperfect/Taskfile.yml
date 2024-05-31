@@ -33,10 +33,10 @@ tasks:
 
   remove:
     cmds:
-      - rm -r "${DOSAPP_DISK_C}/COREL/WP62"
-      - rm -r "${DOSAPP_DISK_C}/COREL/WP62DOS"
-      - echo "WARN: Not removing ${DOSAPP_DISK_C}/BTFONTS"
-      - echo "WARN: Not updating ${DOSAPP_DISK_C}/AUTOEXEC.BAT"
+      - rm -rf "${DOSAPP_DISK_C}/COREL/WP62"
+      - rm -rf "${DOSAPP_DISK_C}/COREL/WP62DOS"
+      - 'echo "WARN: Not removing ${DOSAPP_DISK_C}/BTFONTS"'
+      - 'echo "WARN: Not updating ${DOSAPP_DISK_C}/AUTOEXEC.BAT"'
 
   start:
     cmds:

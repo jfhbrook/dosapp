@@ -3,8 +3,10 @@ package application
 import (
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/config"
 	"github.com/jfhbrook/dosapp/task"
@@ -29,7 +31,7 @@ func (app *App) Path() string {
 }
 
 func (app *App) Mkdir() error {
-	return os.MkdirAll(app.Path(), os.ModeDir)
+	return os.MkdirAll(app.Path(), 0755)
 }
 
 func (app *App) Exists() bool {
@@ -62,22 +64,29 @@ func (app *App) EnvFileTemplatePath() string {
 	return filepath.Join(app.Config.PackageHome, app.Name, "dosapp.env.tmpl")
 }
 
-// TODO: Read the template from the package directory, and template it out
-// with an .Env object.
-//
-// The truth is I didn't want to bite off templating right now. I might
-// exec a call to gomplate just to get this unblocked.
-func (app *App) ReadEnvFileTemplate() ([]byte, error) {
-	panic("ReadEnvFileTemplate not implemented")
-}
-
 func (app *App) WriteEnvFile() error {
-	envPath := app.EnvFilePath()
-	envFile, err := app.ReadEnvFileTemplate()
+	tmplPath := app.EnvFileTemplatePath()
+	log.Warn().Msgf("Using template at %s", tmplPath)
+	tmpl, err := template.New("dosapp.env.tmpl").ParseFiles(tmplPath)
+
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(envPath, envFile, 0644)
+
+	envFilePath := app.EnvFilePath()
+	var f *os.File
+	f, err = os.Create(envFilePath)
+	defer f.Close()
+
+	if err != nil {
+		return err
+	}
+
+	data := map[string]map[string]string{
+		"Env": app.Env(),
+	}
+
+	return tmpl.Execute(f, data)
 }
 
 func (app *App) EditEnvFile() error {
@@ -95,27 +104,22 @@ func (app *App) TaskFilePath() string {
 	return filepath.Join(app.Path(), "Taskfile.yml")
 }
 
-func (app *App) TaskFileTemplatePath() string {
-	return filepath.Join(app.Config.PackageHome, app.Name, "Taskfile.yml.tmpl")
-}
-
 func (app *App) TaskFileExists() bool {
 	taskPath := app.TaskFilePath()
 	_, err := os.Stat(taskPath)
 	return err == nil
 }
 
-// TODO: Same deal as the env file template
-func (app *App) ReadTaskFileTemplate() ([]byte, error) {
-	panic("ReadTaskFileTemplate not implemented")
-}
-
 func (app *App) WriteTaskFile() error {
-	taskPath := app.TaskFilePath()
-	taskFile, err := app.ReadTaskFileTemplate()
+	tmplPath := filepath.Join(app.Config.PackageHome, app.Name, "Taskfile.yml")
+
+	taskFile, err := os.ReadFile(tmplPath)
+
 	if err != nil {
 		return err
 	}
+
+	taskPath := app.TaskFilePath()
 	return os.WriteFile(taskPath, taskFile, 0644)
 }
 
@@ -123,8 +127,17 @@ func (app *App) DocsPath() string {
 	return filepath.Join(app.Path(), "README.md")
 }
 
-func (app *App) CopyDocs() error {
-	panic("CopyDocs not implemented")
+func (app *App) WriteDocs() error {
+	tmplPath := filepath.Join(app.Config.PackageHome, app.Name, "README.md")
+
+	docs, err := os.ReadFile(tmplPath)
+
+	if err != nil {
+		return err
+	}
+
+	docsPath := app.DocsPath()
+	return os.WriteFile(docsPath, docs, 0644)
 }
 
 func (app *App) ShowDocs() error {
@@ -137,7 +150,7 @@ func (app *App) Refresh() error {
 		return err
 	}
 
-	if err := app.CopyDocs(); err != nil {
+	if err := app.WriteDocs(); err != nil {
 		return err
 	}
 
