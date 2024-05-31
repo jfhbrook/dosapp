@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/joho/godotenv"
+
 	"github.com/jfhbrook/dosapp/config"
 	"github.com/jfhbrook/dosapp/task"
 )
@@ -35,9 +37,20 @@ func (app *App) Exists() bool {
 	return err == nil
 }
 
+func (app *App) Env() map[string]string {
+	// TODO: I don't like this call, nor the one in the next function. They
+	// should be fine given a command only ever creates one App, but mutating
+	// global state for a non-global config makes me unhappy.
+	godotenv.Overload(app.EnvFilePath())
+
+	// godotenv mutated its global state, so we can do this. It's fine.
+	// No really.
+	return app.Config.Env()
+}
+
 func (app *App) Environ() []string {
-	// TODO: Env file loading currently depends on the Taskfile referencing
-	// the file. But it would be nice to read/parse the env file directly.
+	godotenv.Overload(app.EnvFilePath())
+
 	return app.Config.Environ()
 }
 

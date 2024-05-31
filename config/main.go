@@ -196,6 +196,30 @@ func NewConfig() *Config {
 	return &conf
 }
 
+func (conf *Config) Env() map[string]string {
+	env := map[string]string{
+		"DOSAPP_ROOT":          conf.Root,
+		"DOSAPP_CONFIG_HOME":   conf.ConfigHome,
+		"DOSAPP_LOG_LEVEL":     conf.LogLevel,
+		"DOSAPP_DOSBOX_BIN":    conf.DosBoxBin,
+		"DOSAPP_7Z_BIN":        conf.SevenZipBin,
+		"DOSAPP_DATA_HOME":     conf.DataHome,
+		"DOSAPP_STATE_HOME":    conf.StateHome,
+		"DOSAPP_CACHE_HOME":    conf.CacheHome,
+		"DOSAPP_DISK_HOME":     conf.DiskHome,
+		"DOSAPP_LINK_HOME":     conf.LinkHome,
+		"DOSAPP_PACKAGE_HOME":  conf.PackageHome,
+		"DOSAPP_DOWNLOAD_HOME": conf.DownloadHome,
+		"DOSAPP_DISK_A":        conf.DiskA,
+		"DOSAPP_DISK_B":        conf.DiskB,
+		"DOSAPP_DISK_C":        conf.DiskC,
+		"EDITOR":               conf.Editor.Bin,
+		"PAGER":                conf.Pager.Bin,
+	}
+
+	return env
+}
+
 func (conf *Config) Environ() []string {
 	env := []string{
 		"DOSAPP_ROOT=" + conf.Root,
@@ -213,6 +237,8 @@ func (conf *Config) Environ() []string {
 		"DOSAPP_DISK_A=" + conf.DiskA,
 		"DOSAPP_DISK_B=" + conf.DiskB,
 		"DOSAPP_DISK_C=" + conf.DiskC,
+		"EDITOR=" + conf.Editor.Bin,
+		"PAGER=" + conf.Pager.Bin,
 	}
 
 	return append(os.Environ(), env...)
