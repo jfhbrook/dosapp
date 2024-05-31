@@ -8,9 +8,12 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/task"
 )
@@ -44,6 +47,32 @@ func getEnv(key string, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func expandUser(path string) (string, error) {
+	if !strings.HasPrefix(path, "~") {
+		return path, nil
+	}
+
+	usr, err := user.Current()
+
+	if err != nil {
+		return path, err
+	}
+
+	if path == "~" {
+		return usr.HomeDir, nil
+	}
+
+	return filepath.Join(usr.HomeDir, path[2:]), nil
+}
+
+func mustExpandUser(path string) string {
+	expanded, err := expandUser(path)
+	if err != nil {
+		log.Panic().Err(err).Msg("Failed to expand user")
+	}
+	return expanded
 }
 
 func LoadConfig() Config {
@@ -103,21 +132,21 @@ func LoadConfig() Config {
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
 
 	return Config{
-		configHome,
+		mustExpandUser(configHome),
 		logLevel,
-		dosBoxBin,
-		sevenZipBin,
-		dataHome,
-		stateHome,
-		cacheHome,
-		diskHome,
-		linkHome,
-		packageHome,
-		downloadHome,
-		pager,
-		diskA,
-		diskB,
-		diskC,
+		mustExpandUser(dosBoxBin),
+		mustExpandUser(sevenZipBin),
+		mustExpandUser(dataHome),
+		mustExpandUser(stateHome),
+		mustExpandUser(cacheHome),
+		mustExpandUser(diskHome),
+		mustExpandUser(linkHome),
+		mustExpandUser(packageHome),
+		mustExpandUser(downloadHome),
+		mustExpandUser(pager),
+		mustExpandUser(diskA),
+		mustExpandUser(diskB),
+		mustExpandUser(diskC),
 	}
 }
 
@@ -191,8 +220,10 @@ func (conf Config) Refresh() error {
 		return err
 	}
 
-	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
-	task.Run(taskPath, conf.Environ(), "init")
+	return conf.Run("init")
+}
 
-	return nil
+func (conf Config) Run(args ...string) error {
+	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	return task.Run(taskPath, conf.Environ(), args...)
 }

@@ -4,11 +4,13 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
-	"github.com/jfhbrook/dosapp/config"
+	"os"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"os"
+
+	"github.com/jfhbrook/dosapp/config"
 )
 
 var rootCmd = &cobra.Command{
@@ -76,8 +78,15 @@ var rootCmd = &cobra.Command{
 			"DOSBOX_DISK_C", conf.DiskC,
 		).Msg("Loaded config")
 
-		log.Info().Msg("TODO: refresh main")
-		log.Info().Msg("TODO: start main")
+		refreshFlag, _ := cmd.Flags().GetBool("refresh")
+
+		if refreshFlag {
+			if err := conf.Refresh(); err != nil {
+				log.Panic().Err(err).Msg("Failed to refresh config")
+			}
+		}
+
+		conf.Run("start")
 	},
 }
 
