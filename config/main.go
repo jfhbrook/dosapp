@@ -80,8 +80,8 @@ func mustExpandUser(path string) string {
 func LoadConfig() Config {
 	configHome := os.Getenv("DOSAPP_CONFIG_HOME")
 	if configHome == "" {
-		if xdg_config_home, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
-			configHome = filepath.Join(xdg_config_home, "dosapp")
+		if xdgConfigHome := os.Getenv("XDG_CONFIG_HOME"); xdgConfigHome != "" {
+			configHome = filepath.Join(xdgConfigHome, "dosapp")
 		} else {
 			configHome = filepath.Join(os.Getenv("HOME"), ".config", "dosapp")
 		}
@@ -97,7 +97,7 @@ func LoadConfig() Config {
 
 	dataHome := getEnv("DOSAPP_DATA_HOME", "")
 	if dataHome == "" {
-		if xdgDataHome, ok := os.LookupEnv("XDG_DATA_HOME"); ok {
+		if xdgDataHome := os.Getenv("XDG_DATA_HOME"); xdgDataHome != "" {
 			dataHome = filepath.Join(xdgDataHome, "dosapp")
 		} else {
 			dataHome = filepath.Join(os.Getenv("HOME"), ".local", "share", "dosapp")
@@ -106,7 +106,7 @@ func LoadConfig() Config {
 
 	stateHome := os.Getenv("DOSAPP_STATE_HOME")
 	if stateHome == "" {
-		if xdgStateHome, ok := os.LookupEnv("XDG_STATE_HOME"); ok {
+		if xdgStateHome := os.Getenv("XDG_STATE_HOME"); xdgStateHome != "" {
 			stateHome = filepath.Join(xdgStateHome, "dosapp")
 		} else {
 			stateHome = filepath.Join(os.Getenv("HOME"), ".local", "state", "dosapp")
@@ -115,8 +115,8 @@ func LoadConfig() Config {
 
 	cacheHome := os.Getenv("DOSAPP_CACHE_HOME")
 	if cacheHome == "" {
-		if xdg_cache_home, ok := os.LookupEnv("XDG_CACHE_HOME"); ok {
-			cacheHome = filepath.Join(xdg_cache_home, "dosapp")
+		if xdgCacheHome := os.Getenv("XDG_CACHE_HOME"); xdgCacheHome != "" {
+			cacheHome = filepath.Join(xdgCacheHome, "dosapp")
 		} else {
 			cacheHome = filepath.Join(os.Getenv("HOME"), ".cache", "dosapp")
 		}
