@@ -193,22 +193,22 @@ func (conf *Config) Environ() []string {
 	return append(os.Environ(), env...)
 }
 
-func (conf *Config) EnvVarPath() string {
+func (conf *Config) EnvFilePath() string {
 	return filepath.Join(conf.ConfigHome, "dosapp.env")
 }
 
 func (conf *Config) WriteEnvFile() error {
-	envPath := conf.EnvVarPath()
+	envPath := conf.EnvFilePath()
 	return os.WriteFile(envPath, envFile, 0644)
 }
 
 func (conf *Config) EditEnvFile() error {
-	envPath := conf.EnvVarPath()
+	envPath := conf.EnvFilePath()
 	return editConfig(envPath)
 }
 
 func (conf *Config) EnvFileExists() bool {
-	envPath := conf.EnvVarPath()
+	envPath := conf.EnvFilePath()
 	_, err := os.Stat(envPath)
 	return err == nil
 }

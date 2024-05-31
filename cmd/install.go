@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
+	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
 )
 
@@ -16,9 +17,9 @@ var installCmd = &cobra.Command{
 	Long:  `Set up the package and configuration for the app, and run its installer.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		// appName := args[0]
+		appName := args[0]
 		conf := config.LoadConfig()
-		// editFlag, _ := cmd.Flags().GetBool("edit")
+		editFlag, _ := cmd.Flags().GetBool("edit")
 		docsFlag, _ := cmd.Flags().GetBool("docs")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
@@ -33,30 +34,30 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		// app := application.LoadApp(appName)
-		// if overwriteFlag || !app.EnvFileExists() {
-		//   app.WriteEnvFile()
-		//   if editFlag {
-		//     app.EditEnvFile()
-		//   }
-		// }
+		app := application.LoadApp(&conf, appName)
+		if overwriteFlag || !app.EnvFileExists() {
+			app.WriteEnvFile()
+			if editFlag {
+				app.EditEnvFile()
+			}
+		}
 
-		// if !refreshFlag && app.TaskFileExists() {
-		// log.Warn().Msgf("Taskfile already exists at %s", app.TaskFilePath)
-		// log.Warn().Msgf("To refresh the app configuration, run 'dosapp install %s --refresh'", appName)
-		// } else {
-		//  refreshFlag = true
-		// }
+		if !refreshFlag && app.TaskFileExists() {
+			log.Warn().Msgf("Taskfile already exists at %s", app.TaskFilePath)
+			log.Warn().Msgf("To refresh the app configuration, run 'dosapp install %s --refresh'", appName)
+		} else {
+			refreshFlag = true
+		}
 
 		if refreshFlag {
-			// app.Refresh()
+			app.Refresh()
 		}
 
 		if docsFlag {
-			// app.ShowDocs()
+			app.ShowDocs()
 		}
 
-		// app.Run("install")
+		app.Run("install")
 	},
 }
 
