@@ -5,9 +5,7 @@ package config
 
 import (
 	_ "embed"
-	"errors"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -15,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 
+	"github.com/jfhbrook/dosapp/editor"
 	"github.com/jfhbrook/dosapp/task"
 )
 
@@ -38,7 +37,6 @@ type Config struct {
 	LinkHome     string
 	PackageHome  string
 	DownloadHome string
-	Pager        string
 	DiskA        string
 	DiskB        string
 	DiskC        string
@@ -130,7 +128,6 @@ func LoadConfig() Config {
 	packageHome := getEnv("DOSAPP_PACKAGE_HOME", filepath.Join(stateHome, "packages"))
 
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
-	pager := getEnv("PAGER", "cat")
 	diskA := getEnv("DOSAPP_DISK_A", filepath.Join(os.Getenv("HOME"), "Documents"))
 	diskB := getEnv("DOSAPP_DISK_B", "")
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
@@ -148,26 +145,10 @@ func LoadConfig() Config {
 		mustExpandUser(linkHome),
 		mustExpandUser(packageHome),
 		mustExpandUser(downloadHome),
-		mustExpandUser(pager),
 		mustExpandUser(diskA),
 		mustExpandUser(diskB),
 		mustExpandUser(diskC),
 	}
-}
-
-func editConfig(file string) error {
-	editor := os.Getenv("EDITOR")
-
-	if editor == "" {
-		return errors.New("No editor specified.")
-	}
-
-	cmd := exec.Command(editor, file)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
 }
 
 func (conf *Config) Environ() []string {
@@ -184,7 +165,6 @@ func (conf *Config) Environ() []string {
 		"DOSAPP_LINK_HOME=" + conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME=" + conf.PackageHome,
 		"DOSAPP_DOWNLOAD_HOME=" + conf.DownloadHome,
-		"PAGER=" + conf.Pager,
 		"DOSAPP_DISK_A=" + conf.DiskA,
 		"DOSAPP_DISK_B=" + conf.DiskB,
 		"DOSAPP_DISK_C=" + conf.DiskC,
@@ -204,7 +184,7 @@ func (conf *Config) WriteEnvFile() error {
 
 func (conf *Config) EditEnvFile() error {
 	envPath := conf.EnvFilePath()
-	return editConfig(envPath)
+	return editor.Edit(envPath)
 }
 
 func (conf *Config) EnvFileExists() bool {

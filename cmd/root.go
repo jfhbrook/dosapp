@@ -69,8 +69,6 @@ var rootCmd = &cobra.Command{
 		).Str(
 			"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
 		).Str(
-			"PAGER", conf.Pager,
-		).Str(
 			"DOSBOX_DISK_A", conf.DiskA,
 		).Str(
 			"DOSBOX_DISK_B", conf.DiskB,
