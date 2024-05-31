@@ -169,9 +169,10 @@ function init-app-config {
 }
 
 function edit-config {
+  FILE="${1}"
   if [ -n "${EDIT}" ]; then
     if [ -n "${EDITOR}" ]; then
-      ${EDITOR} "${DOSAPP_CONFIG_HOME}/apps/${APP_NAME}/dosapp.env"
+      ${EDITOR} "${FILE}"
     else
       log-warn "EDITOR not defined. Skipping editing env file."
     fi
@@ -263,7 +264,7 @@ function run-init {
 
   load-config
 
-  if [ ! -f "${DOSAPP_ROOT}/config/Taskfile.yml" ]; then
+  if [ ! -f "${DOSAPP_CONFIG_HOME}/Taskfile.yml" ]; then
     REFRESH=1
   fi
 
