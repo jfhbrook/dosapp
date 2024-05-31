@@ -14,6 +14,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/editor"
+	"github.com/jfhbrook/dosapp/pager"
 	"github.com/jfhbrook/dosapp/task"
 )
 
@@ -77,7 +78,7 @@ func mustExpandUser(path string) string {
 	return expanded
 }
 
-func LoadConfig() Config {
+func NewConfig() *Config {
 	configHome := os.Getenv("DOSAPP_CONFIG_HOME")
 	if configHome == "" {
 		if xdgConfigHome := os.Getenv("XDG_CONFIG_HOME"); xdgConfigHome != "" {

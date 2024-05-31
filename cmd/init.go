@@ -14,7 +14,7 @@ var initCmd = &cobra.Command{
 	Short: "Initialize dosapp's configuration",
 	Long:  `Initialize dosapp's main configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := config.LoadConfig()
+		conf := config.NewConfig()
 
 		editFlag, _ := cmd.Flags().GetBool("edit")
 		editFlagChanged := cmd.Flags().Changed("edit")
@@ -60,7 +60,7 @@ var initCmd = &cobra.Command{
 		}
 
 		// Pick up any changes made from editing
-		conf = config.LoadConfig()
+		conf = config.NewConfig()
 
 		if refreshFlag {
 			if err := conf.Refresh(); err != nil {

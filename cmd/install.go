@@ -18,7 +18,7 @@ var installCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		appName := args[0]
-		conf := config.LoadConfig()
+		conf := config.NewConfig()
 
 		editFlag, _ := cmd.Flags().GetBool("edit")
 		editFlagChanged := cmd.Flags().Changed("edit")
@@ -40,7 +40,7 @@ var installCmd = &cobra.Command{
 			}
 		*/
 
-		app := application.LoadApp(&conf, appName)
+		app := application.NewApp(conf, appName)
 
 		if err := app.Mkdir(); err != nil {
 			log.Panic().Err(err).Msg("Failed to create app directory")

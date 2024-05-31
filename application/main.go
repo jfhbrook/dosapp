@@ -5,27 +5,25 @@ import (
 	"path/filepath"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/editor"
-	"github.com/jfhbrook/dosapp/pager"
 	"github.com/jfhbrook/dosapp/task"
 )
 
 type App struct {
-	name   string
-	config *config.Config
+	Name   string
+	Config *config.Config
 }
 
-func LoadApp(conf *config.Config, name string) App {
+func NewApp(conf *config.Config, name string) *App {
 	app := App{
-		name,
-		conf,
+		Name:   name,
+		Config: conf,
 	}
 
-	return app
+	return &app
 }
 
 func (app *App) Path() string {
-	return filepath.Join(app.config.ConfigHome, "apps", app.name)
+	return filepath.Join(app.Config.ConfigHome, "apps", app.Name)
 }
 
 func (app *App) Mkdir() error {
@@ -40,7 +38,7 @@ func (app *App) Exists() bool {
 func (app *App) Environ() []string {
 	// TODO: Env file loading currently depends on the Taskfile referencing
 	// the file. But it would be nice to read/parse the env file directly.
-	return app.config.Environ()
+	return app.Config.Environ()
 }
 
 func (app *App) EnvFilePath() string {

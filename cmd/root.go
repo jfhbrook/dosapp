@@ -49,33 +49,7 @@ var rootCmd = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		conf := config.LoadConfig()
-		log.Debug().Str(
-			"DOSAPP_LOG_LEVEL", conf.LogLevel,
-		).Str(
-			"DOSAPP_DOSBOX_BIN", conf.DosBoxBin,
-		).Str(
-			"DOSAPP_7Z_BIN", conf.SevenZipBin,
-		).Str(
-			"DOSAPP_DATA_HOME", conf.DataHome,
-		).Str(
-			"DOSAPP_STATE_HOME", conf.StateHome,
-		).Str(
-			"DOSAPP_CACHE_HOME", conf.CacheHome,
-		).Str(
-			"DOSAPP_LINK_HOME", conf.LinkHome,
-		).Str(
-			"DOSAPP_PACKAGE_HOME", conf.PackageHome,
-		).Str(
-			"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
-		).Str(
-			"DOSBOX_DISK_A", conf.DiskA,
-		).Str(
-			"DOSBOX_DISK_B", conf.DiskB,
-		).Str(
-			"DOSBOX_DISK_C", conf.DiskC,
-		).Msg("Loaded config")
-
+		conf := config.NewConfig()
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
 		if refreshFlag {
