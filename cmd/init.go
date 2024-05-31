@@ -25,7 +25,9 @@ var initCmd = &cobra.Command{
 			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
 		} else {
 			refreshFlag = true
-			log.Info().Msg("TODO: Create env file")
+			if err := conf.WriteEnvFile(); err != nil {
+				log.Panic().Err(err).Msg("Failed to write env file")
+			}
 		}
 
 		if editFlag {
@@ -36,9 +38,16 @@ var initCmd = &cobra.Command{
 
 		conf = config.LoadConfig()
 
+		if !refreshFlag && conf.TaskFileExists() {
+			log.Warn().Msgf("Taskfile already exists at %s/Taskfile.yml", conf.ConfigHome)
+			log.Warn().Msg("To refresh the configuration, run 'dosapp init --refresh'")
+		} else {
+			refreshFlag = true
+		}
+
 		if refreshFlag {
 			if err := conf.Refresh(); err != nil {
-				log.Panic().Err(err).Msg("Failed to reload config")
+				log.Panic().Err(err).Msg("Failed to refresh config")
 			}
 		}
 	},

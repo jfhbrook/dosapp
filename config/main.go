@@ -4,13 +4,21 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package config
 
 import (
+	_ "embed"
 	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
+
+//go:embed dosapp.env
+var envFile []byte
+
+//go:embed Taskfile.yml
+var taskFile []byte
 
 type Config struct {
 	ConfigHome   string
@@ -127,13 +135,39 @@ func editConfig(file string) error {
 	return cmd.Run()
 }
 
+func (conf Config) WriteEnvFile() error {
+	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	return os.WriteFile(envPath, envFile, 0644)
+}
+
 func (conf Config) EditEnvFile() error {
-	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
-	return editConfig(envFile)
+	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	return editConfig(envPath)
 }
 
 func (conf Config) EnvFileExists() bool {
-	envFile := filepath.Join(conf.ConfigHome, "dosapp.env")
-	_, err := os.Stat(envFile)
+	envPath := filepath.Join(conf.ConfigHome, "dosapp.env")
+	_, err := os.Stat(envPath)
 	return err == nil
+}
+
+func (conf Config) WriteTaskFile() error {
+	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	return os.WriteFile(taskPath, taskFile, 0644)
+}
+
+func (conf Config) TaskFileExists() bool {
+	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	_, err := os.Stat(taskPath)
+	return err == nil
+}
+
+func (conf Config) Refresh() error {
+	err := conf.WriteTaskFile()
+	if err != nil {
+		return err
+	}
+	log.Info().Msg("run task init")
+
+	return nil
 }
