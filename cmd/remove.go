@@ -6,6 +6,9 @@ package cmd
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+
+	"github.com/jfhbrook/dosapp/application"
+	"github.com/jfhbrook/dosapp/config"
 )
 
 var removeCmd = &cobra.Command{
@@ -14,14 +17,29 @@ var removeCmd = &cobra.Command{
 	Long:  `Unlink the app and remove its configuration.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Info().Msg("TODO: pull app name from args")
-		log.Info().Msg("TODO: require that the app is installed")
-		log.Info().Msg("TODO: refresh main configuration")
-		log.Info().Msg("TODO: init app configuration")
-		log.Info().Msg("TODO: refresh app configuration")
-		log.Info().Msg("TODO: run remove-link task")
-		log.Info().Msg("TODO: run remove task")
-		log.Info().Msg("TODO: rm -rf the app")
+		appName := args[0]
+		conf := config.NewConfig()
+
+		refreshFlag, _ := cmd.Flags().GetBool("refresh")
+
+		app := application.NewApp(conf, appName)
+
+		if !app.Exists() {
+			log.Fatal().Msgf("%s not found. Did you install it?", appName)
+		}
+
+		if refreshFlag {
+			if err := app.Refresh(); err != nil {
+				log.Panic().Err(err).Msg("Failed to refresh application config")
+			}
+		}
+
+		app.Run("unlink")
+		app.Run("remove")
+
+		if err := app.Remove(); err != nil {
+			log.Panic().Err(err).Msg("Failed to remove application")
+		}
 	},
 }
 

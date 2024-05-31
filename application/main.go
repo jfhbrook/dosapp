@@ -34,6 +34,10 @@ func (app *App) Mkdir() error {
 	return os.MkdirAll(app.Path(), 0755)
 }
 
+func (app *App) Remove() error {
+	return os.RemoveAll(app.Path())
+}
+
 func (app *App) Exists() bool {
 	_, err := os.Stat(app.Path())
 	return err == nil
