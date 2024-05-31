@@ -49,7 +49,7 @@ tasks:
       - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/bin/turbo.tmpl")" > "${DOSAPP_LINK_HOME}/turbo"'
       - chmod +x "${DOSAPP_LINK_HOME}/turbo"
 
-  remove-link:
+  unlink:
     cmds:
       - rm -f "${DOSAPP_LINK_HOME}/turbo"
 
