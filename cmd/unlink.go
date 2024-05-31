@@ -33,7 +33,9 @@ var unlinkCmd = &cobra.Command{
 			}
 		}
 
-		app.Run("unlink")
+		if err := app.Run("unlink"); err != nil {
+			log.Panic().Err(err).Msg("Failed to unlink application")
+		}
 	},
 }
 

@@ -76,7 +76,7 @@ var installCmd = &cobra.Command{
 
 		if shouldEdit {
 			if err := app.EditEnvFile(); err != nil {
-				log.Panic().Err(err).Msg("Failed to edit config file")
+				log.Panic().Err(err).Msg("Failed to edit application config file")
 			}
 		}
 
@@ -92,7 +92,9 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		app.Run("install")
+		if err := app.Run("install"); err != nil {
+			log.Panic().Err(err).Msg("Failed to install application")
+		}
 	},
 }
 

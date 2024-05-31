@@ -33,7 +33,9 @@ var linkCmd = &cobra.Command{
 			}
 		}
 
-		app.Run("link")
+		if err := app.Run("link"); err != nil {
+			log.Panic().Err(err).Msg("Failed to link application")
+		}
 	},
 }
 

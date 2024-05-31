@@ -34,8 +34,13 @@ var removeCmd = &cobra.Command{
 			}
 		}
 
-		app.Run("unlink")
-		app.Run("remove")
+		if err := app.Run("unlink"); err != nil {
+			log.Panic().Err(err).Msg("Failed to unlink application")
+		}
+
+		if err := app.Run("remove"); err != nil {
+			log.Panic().Err(err).Msg("Failed to remove application")
+		}
 
 		if err := app.Remove(); err != nil {
 			log.Panic().Err(err).Msg("Failed to remove application")

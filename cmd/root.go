@@ -58,7 +58,9 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		conf.Run("start")
+		if err := conf.Run("start"); err != nil {
+			log.Panic().Err(err).Msg("Failed to start")
+		}
 	},
 }
 
