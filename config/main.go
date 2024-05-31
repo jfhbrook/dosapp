@@ -203,7 +203,7 @@ func (conf *Config) WriteTaskFile() error {
 }
 
 func (conf *Config) TaskFileExists() bool {
-	taskPath := filepath.Join(conf.ConfigHome, "Taskfile.yml")
+	taskPath := conf.TaskFilePath()
 	_, err := os.Stat(taskPath)
 	return err == nil
 }

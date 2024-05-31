@@ -19,7 +19,9 @@ var installCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		appName := args[0]
 		conf := config.LoadConfig()
+
 		editFlag, _ := cmd.Flags().GetBool("edit")
+		editFlagChanged := cmd.Flags().Changed("edit")
 		docsFlag, _ := cmd.Flags().GetBool("docs")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
@@ -28,33 +30,66 @@ var installCmd = &cobra.Command{
 			refreshFlag = true
 		}
 
-		if refreshFlag {
-			if err := conf.Refresh(); err != nil {
-				log.Panic().Err(err).Msg("Failed to refresh config")
+		// TODO: The bash version of dosapp runs core refresh every time. But
+		// we don't want to do that, right?
+		/*
+			if refreshFlag {
+				if err := conf.Refresh(); err != nil {
+					log.Panic().Err(err).Msg("Failed to refresh config")
+				}
 			}
-		}
+		*/
 
 		app := application.LoadApp(&conf, appName)
-		if overwriteFlag || !app.EnvFileExists() {
-			app.WriteEnvFile()
-			if editFlag {
-				app.EditEnvFile()
+
+		if err := app.Mkdir(); err != nil {
+			log.Panic().Err(err).Msg("Failed to create app directory")
+		}
+
+		if !overwriteFlag && app.EnvFileExists() {
+			log.Warn().Msgf("Environment file already exists at %s", app.EnvFilePath())
+			log.Warn().Msgf("To overwrite and refresh the configuration, run 'dosapp install %s --overwrite'", appName)
+		} else {
+			refreshFlag = true
+			if err := app.WriteEnvFile(); err != nil {
+				log.Panic().Err(err).Msg("Failed to write env file")
 			}
 		}
 
 		if !refreshFlag && app.TaskFileExists() {
-			log.Warn().Msgf("Taskfile already exists at %s", app.TaskFilePath)
+			log.Warn().Msgf("Taskfile already exists at %s", app.TaskFilePath())
 			log.Warn().Msgf("To refresh the app configuration, run 'dosapp install %s --refresh'", appName)
 		} else {
 			refreshFlag = true
+			// Will write task file on refresh step
+		}
+
+		// If we're not refreshing, then we only want to edit the file if
+		// explicitly asked
+		var shouldEdit bool
+
+		if refreshFlag {
+			shouldEdit = editFlag
+		} else {
+			shouldEdit = editFlag && editFlagChanged
+		}
+
+		if shouldEdit {
+			if err := app.EditEnvFile(); err != nil {
+				log.Panic().Err(err).Msg("Failed to edit config file")
+			}
 		}
 
 		if refreshFlag {
-			app.Refresh()
+			if err := app.Refresh(); err != nil {
+				log.Panic().Err(err).Msg("Failed to refresh config")
+			}
 		}
 
 		if docsFlag {
-			app.ShowDocs()
+			if err := app.ShowDocs(); err != nil {
+				log.Error().Err(err).Msg("Failed to show docs")
+			}
 		}
 
 		app.Run("install")

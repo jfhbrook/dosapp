@@ -9,7 +9,9 @@ import (
 )
 
 func Show(file string) error {
-	pager := os.Getenv("Pager")
+	// TODO: This doesn't seem to be respecting dotenv. Pass the config in here
+	// explicitly, instead of depending on the environment.
+	pager := os.Getenv("PAGER")
 
 	if pager == "" {
 		pager = "cat"

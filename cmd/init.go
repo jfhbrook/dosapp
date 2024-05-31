@@ -16,13 +16,13 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
 
-		editFlagChanged := cmd.Flags().Changed("edit")
 		editFlag, _ := cmd.Flags().GetBool("edit")
+		editFlagChanged := cmd.Flags().Changed("edit")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
 		if !overwriteFlag && conf.EnvFileExists() {
-			log.Warn().Msgf("Environment file already exists at %s/dosapp.env", conf.ConfigHome)
+			log.Warn().Msgf("Environment file already exists at %s", conf.EnvFilePath())
 			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
 		} else {
 			refreshFlag = true

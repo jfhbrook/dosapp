@@ -1,7 +1,12 @@
 package application
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/editor"
+	"github.com/jfhbrook/dosapp/pager"
 	"github.com/jfhbrook/dosapp/task"
 )
 
@@ -11,10 +16,25 @@ type App struct {
 }
 
 func LoadApp(conf *config.Config, name string) App {
-	return App{
+	app := App{
 		name,
 		conf,
 	}
+
+	return app
+}
+
+func (app *App) Path() string {
+	return filepath.Join(app.config.ConfigHome, "apps", app.name)
+}
+
+func (app *App) Mkdir() error {
+	return os.MkdirAll(app.Path(), os.ModeDir)
+}
+
+func (app *App) Exists() bool {
+	_, err := os.Stat(app.Path())
+	return err == nil
 }
 
 func (app *App) Environ() []string {
@@ -24,32 +44,85 @@ func (app *App) Environ() []string {
 }
 
 func (app *App) EnvFilePath() string {
-	return ""
+	return filepath.Join(app.Path(), "dosapp.env")
 }
 
-func (app *App) WriteEnvFile() {
+// TODO: Read the template from the package directory, and template it out
+// with an .Env object.
+//
+// The truth is I didn't want to bite off templating right now. I might
+// exec a call to gomplate just to get this unblocked.
+func (app *App) ReadEnvFileTemplate() ([]byte, error) {
+	panic("ReadEnvFileTemplate not implemented")
 }
 
-func (app *App) EditEnvFile() {
+func (app *App) WriteEnvFile() error {
+	envPath := app.EnvFilePath()
+	envFile, err := app.ReadEnvFileTemplate()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(envPath, envFile, 0644)
+}
+
+func (app *App) EditEnvFile() error {
+	envPath := app.EnvFilePath()
+	return editor.Edit(envPath)
 }
 
 func (app *App) EnvFileExists() bool {
-	return false
+	envPath := app.EnvFilePath()
+	_, err := os.Stat(envPath)
+	return err == nil
 }
 
 func (app *App) TaskFilePath() string {
-	panic("TaskFilePath not implemented")
-	return ""
+	return filepath.Join(app.Path(), "Taskfile.yml")
 }
 
 func (app *App) TaskFileExists() bool {
-	return false
+	taskPath := app.TaskFilePath()
+	_, err := os.Stat(taskPath)
+	return err == nil
 }
 
-func (app *App) Refresh() {
+// TODO: Same deal as the env file template
+func (app *App) ReadTaskFileTemplate() ([]byte, error) {
+	panic("ReadTaskFileTemplate not implemented")
 }
 
-func (app *App) ShowDocs() {
+func (app *App) WriteTaskFile() error {
+	taskPath := app.TaskFilePath()
+	taskFile, err := app.ReadTaskFileTemplate()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(taskPath, taskFile, 0644)
+}
+
+func (app *App) DocsPath() string {
+	return filepath.Join(app.Path(), "README.md")
+}
+
+func (app *App) CopyDocs() error {
+	panic("CopyDocs not implemented")
+}
+
+func (app *App) ShowDocs() error {
+	docsPath := app.DocsPath()
+	return pager.Show(docsPath)
+}
+
+func (app *App) Refresh() error {
+	if err := app.WriteTaskFile(); err != nil {
+		return err
+	}
+
+	if err := app.CopyDocs(); err != nil {
+		return err
+	}
+
+	return app.Run("init")
 }
 
 func (app *App) Run(args ...string) error {
