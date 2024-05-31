@@ -45,6 +45,10 @@ func (app *App) EnvFilePath() string {
 	return filepath.Join(app.Path(), "dosapp.env")
 }
 
+func (app *App) EnvFileTemplatePath() string {
+	return filepath.Join(app.Config.PackageHome, app.Name, "dosapp.env.tmpl")
+}
+
 // TODO: Read the template from the package directory, and template it out
 // with an .Env object.
 //
@@ -76,6 +80,10 @@ func (app *App) EnvFileExists() bool {
 
 func (app *App) TaskFilePath() string {
 	return filepath.Join(app.Path(), "Taskfile.yml")
+}
+
+func (app *App) TaskFileTemplatePath() string {
+	return filepath.Join(app.Config.PackageHome, app.Name, "Taskfile.yml.tmpl")
 }
 
 func (app *App) TaskFileExists() bool {

@@ -6,7 +6,7 @@ tasks:
   default:
     deps: [check]
 
-  check:
+  lint:
     cmds:
       - shellcheck -x ./install.sh
       - go vet .
