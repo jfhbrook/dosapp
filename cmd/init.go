@@ -21,7 +21,7 @@ var initCmd = &cobra.Command{
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		if conf.EnvFileExists() && !overwriteFlag {
+		if !overwriteFlag && conf.EnvFileExists() {
 			log.Warn().Msgf("Environment file already exists at %s/dosapp.env", conf.ConfigHome)
 			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
 		} else {
@@ -31,13 +31,20 @@ var initCmd = &cobra.Command{
 			}
 		}
 
+		// It's technically possible for the env file to configure a different
+		// location for the TaskFile. But that's based on the same config home
+		// as with the env file. In other words, this is a sensible assumption,
+		// and setting config home this way is unsupported.
 		if !refreshFlag && conf.TaskFileExists() {
 			log.Warn().Msgf("Taskfile already exists at %s", conf.TaskFilePath())
 			log.Warn().Msg("To refresh the configuration, run 'dosapp init --refresh'")
 		} else {
 			refreshFlag = true
+			// Will write task file on refresh step
 		}
 
+		// If we're not refreshing, then we only want to edit the file if
+		// explicitly asked
 		var shouldEdit bool
 
 		if refreshFlag {
@@ -52,6 +59,7 @@ var initCmd = &cobra.Command{
 			}
 		}
 
+		// Pick up any changes made from editing
 		conf = config.LoadConfig()
 
 		if refreshFlag {
