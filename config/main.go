@@ -24,6 +24,17 @@ var envFile []byte
 //go:embed Taskfile.yml
 var taskFile []byte
 
+//go:embed main.conf.tmpl
+var mainConfTmpl []byte
+
+//go:embed start.conf.tmpl
+var startConfTmpl []byte
+
+var Templates = map[string]string{
+	"main.conf.tmpl":  string(mainConfTmpl),
+	"start.conf.tmpl": string(startConfTmpl),
+}
+
 type Config struct {
 	// TODO: Root is only necessary until I move templating into dosapp
 	Root         string

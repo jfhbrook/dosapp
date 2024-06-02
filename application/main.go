@@ -9,21 +9,23 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/packages"
 	"github.com/jfhbrook/dosapp/task"
 )
 
 type App struct {
-	Name   string
-	Config *config.Config
+	Name    string
+	Config  *config.Config
+	Package *packages.Package
 }
 
 func NewApp(conf *config.Config, name string) *App {
-	app := App{
-		Name:   name,
-		Config: conf,
+	pkg := packages.NewPackage(conf, name)
+	return &App{
+		Name:    name,
+		Config:  conf,
+		Package: pkg,
 	}
-
-	return &app
 }
 
 func (app *App) Path() string {
@@ -64,13 +66,9 @@ func (app *App) EnvFilePath() string {
 	return filepath.Join(app.Path(), "dosapp.env")
 }
 
-func (app *App) EnvFileTemplatePath() string {
-	return filepath.Join(app.Config.PackageHome, app.Name, "dosapp.env.tmpl")
-}
-
 func (app *App) WriteEnvFile() error {
-	tmplPath := app.EnvFileTemplatePath()
-	log.Warn().Msgf("Using template at %s", tmplPath)
+	tmplPath := app.Package.EnvFileTemplatePath()
+	log.Debug().Msgf("Using template at %s", tmplPath)
 	tmpl, err := template.New("dosapp.env.tmpl").ParseFiles(tmplPath)
 
 	if err != nil {
@@ -115,7 +113,7 @@ func (app *App) TaskFileExists() bool {
 }
 
 func (app *App) WriteTaskFile() error {
-	tmplPath := filepath.Join(app.Config.PackageHome, app.Name, "Taskfile.yml")
+	tmplPath := app.Package.TaskFilePath()
 
 	taskFile, err := os.ReadFile(tmplPath)
 
@@ -132,7 +130,7 @@ func (app *App) DocsPath() string {
 }
 
 func (app *App) WriteDocs() error {
-	tmplPath := filepath.Join(app.Config.PackageHome, app.Name, "README.md")
+	tmplPath := app.Package.DocsPath()
 
 	docs, err := os.ReadFile(tmplPath)
 

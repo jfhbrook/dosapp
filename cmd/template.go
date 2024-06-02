@@ -4,10 +4,17 @@ Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 package cmd
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	// "github.com/jfhbrook/dosapp/application"
-	// "github.com/jfhbrook/dosapp/config"
+
+	"github.com/jfhbrook/dosapp/application"
+	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/packages"
 )
 
 var templateCmd = &cobra.Command{
@@ -16,30 +23,68 @@ var templateCmd = &cobra.Command{
 	Long:  `Render a config or package template.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		// templateName := args[0]
-		// conf := config.NewConfig()
+		templateName := args[0]
+		conf := config.NewConfig()
 
 		configFlag, _ := cmd.Flags().GetBool("config")
 		packageName := cmd.Flag("package").Value.String()
 
-		// var dest string
+		basename := strings.TrimSuffix(templateName, filepath.Ext(templateName))
+
+		var env map[string]string
+		var tmpl *template.Template
+		var dest string
 
 		if packageName != "" && configFlag {
 			log.Fatal().Msg("Cannot specify both a package and a config template")
 		} else if packageName != "" {
-			log.Info().Msg("TODO: load app object")
-			log.Info().Msg("TODO: generate app env object")
-			log.Info().Msg("TODO: load template from package")
-			log.Info().Msg("TODO: set destination in ~/.config/dosapp/apps/{app}")
+			app := application.NewApp(conf, packageName)
+			pkg := packages.NewPackage(conf, packageName)
+			src := filepath.Join(pkg.Path(), templateName)
+
+			env = app.Env()
+			dest = filepath.Join(app.Path(), basename)
+
+			var err error
+
+			tmpl, err = template.New(templateName).ParseFiles(src)
+
+			if err != nil {
+				log.Fatal().Err(err).Msg("Failed to parse package template")
+			}
 		} else if configFlag {
-			log.Info().Msg("TODO: generate config env object")
-			log.Info().Msg("TODO: pull from map of templates")
-			log.Info().Msg("TODO: set destination in ~/.config/dosapp")
+			env = conf.Env()
+			dest = filepath.Join(conf.ConfigHome, templateName)
+
+			var err error
+			tmpl, err = template.New(templateName).Parse(config.Templates[templateName])
+
+			if err != nil {
+				log.Panic().Err(err).Msg("Failed to parse config template")
+			}
 		} else {
 			log.Fatal().Msg("Must specify either a package or a config template")
 		}
 
-		log.Info().Msg("TODO: render template to destination")
+		var f *os.File
+		var err error
+
+		f, err = os.Create(dest)
+		defer f.Close()
+
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to open destination file")
+		}
+
+		data := map[string]map[string]string{
+			"Env": env,
+		}
+
+		err = tmpl.Execute(f, data)
+
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to render template")
+		}
 	},
 }
 
