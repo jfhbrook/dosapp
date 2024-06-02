@@ -36,8 +36,7 @@ var Templates = map[string]string{
 }
 
 type Config struct {
-	// TODO: Root is only necessary until I move templating into dosapp
-	Root         string
+	Bin          string
 	ConfigHome   string
 	LogLevel     string
 	DosBoxBin    string
@@ -89,6 +88,21 @@ func mustExpandUser(path string) string {
 	return expanded
 }
 
+// "go run" generates the binary in a temporary location, which won't exist
+// when it's later accessed by a link script. In those cases, we will
+// assume there is a `dosapp` in the PATH.
+
+var tempPaths = [3]string{"/var/folders/", "/private/var/folders/", "/tmp/"}
+
+func isTemporary(path string) bool {
+	for _, value := range tempPaths {
+		if strings.HasPrefix(path, value) {
+			return true
+		}
+	}
+	return false
+}
+
 func NewConfig() *Config {
 	configHome := os.Getenv("DOSAPP_CONFIG_HOME")
 	if configHome == "" {
@@ -103,7 +117,17 @@ func NewConfig() *Config {
 	// This may be a sign to move away from dotenv and towards yaml.
 	godotenv.Overload(filepath.Join(configHome, "dosapp.env"))
 
-	root := getEnv("DOSAPP_ROOT", "")
+	bin, err := os.Executable()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to get executable path - using 'dosapp'")
+		bin = "dosapp"
+	}
+
+	if isTemporary(bin) {
+		log.Warn().Err(err).Msg("Binary is temporary and likely generated with " +
+			"'go build' - task generated with this value will fail after dosapp " +
+			"exits")
+	}
 
 	logLevel := getEnv("DOSAPP_LOG_LEVEL", "")
 	dosBoxBin := getEnv("DOSAPP_DOSBOX_BIN", "dosbox-x")
@@ -155,26 +179,28 @@ func NewConfig() *Config {
 	pg := pager.NewPager(os.Getenv("PAGER"))
 
 	conf := Config{
-		mustExpandUser(root),
-		mustExpandUser(configHome),
-		logLevel,
-		mustExpandUser(dosBoxBin),
-		mustExpandUser(sevenZipBin),
-		mustExpandUser(dataHome),
-		mustExpandUser(stateHome),
-		mustExpandUser(cacheHome),
-		mustExpandUser(diskHome),
-		mustExpandUser(linkHome),
-		mustExpandUser(packageHome),
-		mustExpandUser(downloadHome),
-		mustExpandUser(diskA),
-		mustExpandUser(diskB),
-		mustExpandUser(diskC),
-		ed,
-		pg,
+		Bin:          bin,
+		ConfigHome:   mustExpandUser(configHome),
+		LogLevel:     logLevel,
+		DosBoxBin:    mustExpandUser(dosBoxBin),
+		SevenZipBin:  mustExpandUser(sevenZipBin),
+		DataHome:     mustExpandUser(dataHome),
+		StateHome:    mustExpandUser(stateHome),
+		CacheHome:    mustExpandUser(cacheHome),
+		DiskHome:     mustExpandUser(diskHome),
+		LinkHome:     mustExpandUser(linkHome),
+		PackageHome:  mustExpandUser(packageHome),
+		DownloadHome: mustExpandUser(downloadHome),
+		DiskA:        mustExpandUser(diskA),
+		DiskB:        mustExpandUser(diskB),
+		DiskC:        mustExpandUser(diskC),
+		Editor:       ed,
+		Pager:        pg,
 	}
 
 	log.Debug().Str(
+		"DOSAPP_BIN", conf.Bin,
+	).Str(
 		"DOSAPP_LOG_LEVEL", conf.LogLevel,
 	).Str(
 		"DOSAPP_DOSBOX_BIN", conf.DosBoxBin,
@@ -209,7 +235,7 @@ func NewConfig() *Config {
 
 func (conf *Config) Env() map[string]string {
 	env := map[string]string{
-		"DOSAPP_ROOT":          conf.Root,
+		"DOSAPP_BIN":           conf.Bin,
 		"DOSAPP_CONFIG_HOME":   conf.ConfigHome,
 		"DOSAPP_LOG_LEVEL":     conf.LogLevel,
 		"DOSAPP_DOSBOX_BIN":    conf.DosBoxBin,
@@ -233,7 +259,7 @@ func (conf *Config) Env() map[string]string {
 
 func (conf *Config) Environ() []string {
 	env := []string{
-		"DOSAPP_ROOT=" + conf.Root,
+		"DOSAPP_BIN=" + conf.Bin,
 		"DOSAPP_CONFIG_HOME=" + conf.ConfigHome,
 		"DOSAPP_LOG_LEVEL=" + conf.LogLevel,
 		"DOSAPP_DOSBOX_BIN=" + conf.DosBoxBin,
