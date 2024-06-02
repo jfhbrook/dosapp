@@ -62,6 +62,9 @@ var rootCmd = &cobra.Command{
 			log.Panic().Err(err).Msg("Failed to start")
 		}
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		log.Info().Msg("toodles!")
+	},
 }
 
 func Execute() {
