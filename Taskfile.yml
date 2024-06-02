@@ -10,10 +10,12 @@ tasks:
     cmds:
       - shellcheck -x ./install.sh
       - go vet .
+      - yamlfmt -lint '**/*.yml'
 
   format:
     cmds:
       - find . -name '*.go' -exec go fmt '{}' ';'
+      - yamlfmt '**/*.yml'
 
   install:
     cmds:
