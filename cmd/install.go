@@ -30,16 +30,6 @@ var installCmd = &cobra.Command{
 			refreshFlag = true
 		}
 
-		// TODO: The bash version of dosapp runs core refresh every time. But
-		// we don't want to do that, right?
-		/*
-			if refreshFlag {
-				if err := conf.Refresh(); err != nil {
-					log.Panic().Err(err).Msg("Failed to refresh config")
-				}
-			}
-		*/
-
 		app := application.NewApp(conf, appName)
 
 		if err := app.Mkdir(); err != nil {
