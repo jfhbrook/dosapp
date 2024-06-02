@@ -9,10 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize dosapp's configuration",
-	Long:  `Initialize dosapp's main configuration.`,
+var configCmd = &cobra.Command{
+	Use:   "config",
+	Short: "Configure dosapp",
+	Long: `Initialize and edit dosapp's main configuration, edit it, and
+generate tasks and DosBox .conf files based on it.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.NewConfig()
 
@@ -23,7 +24,7 @@ var initCmd = &cobra.Command{
 
 		if !overwriteFlag && conf.EnvFileExists() {
 			log.Warn().Msgf("Environment file already exists at %s", conf.EnvFilePath())
-			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp init --overwrite'")
+			log.Warn().Msg("To overwrite and refresh the configuration, run 'dosapp config --overwrite'")
 		} else {
 			refreshFlag = true
 			if err := conf.WriteEnvFile(); err != nil {
@@ -37,7 +38,7 @@ var initCmd = &cobra.Command{
 		// and setting config home this way is unsupported.
 		if !refreshFlag && conf.TaskFileExists() {
 			log.Warn().Msgf("Taskfile already exists at %s", conf.TaskFilePath())
-			log.Warn().Msg("To refresh the configuration, run 'dosapp init --refresh'")
+			log.Warn().Msg("To refresh the configuration, run 'dosapp config --refresh'")
 		} else {
 			refreshFlag = true
 			// Will write task file on refresh step
@@ -71,9 +72,9 @@ var initCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(configCmd)
 
-	initCmd.Flags().BoolP("edit", "e", true, "Edit environment files")
-	initCmd.Flags().BoolP("overwrite", "o", false, "Overwrite existing configuration")
-	initCmd.Flags().BoolP("refresh", "r", false, "Generate new task and conf files")
+	configCmd.Flags().BoolP("edit", "e", true, "Edit environment files")
+	configCmd.Flags().BoolP("overwrite", "o", false, "Overwrite existing configuration")
+	configCmd.Flags().BoolP("refresh", "r", false, "Generate new task and conf files")
 }
