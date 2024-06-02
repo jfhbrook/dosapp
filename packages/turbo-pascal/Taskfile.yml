@@ -14,9 +14,9 @@ tasks:
       - 'if [ -n "${DOSAPP_DISK_A:-}" ]; then mkdir -p "${DOSAPP_DISK_A}"; fi'
       - 'if [ -n "${DOSAPP_DISK_B:-}" ]; then mkdir -p "${DOSAPP_DISK_B}"; fi'
       - 'if [ -n "${DOSAPP_DISK_C:-}" ]; then mkdir -p "${DOSAPP_DISK_C}"; else echo "DISAPP_DISK_C is required"; exit 1; fi'
-      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/main.conf"'
-      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/install.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/install.conf"'
-      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/start.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/apps/turbo-pascal/start.conf"'
+      - '"${DOSAPP_BIN}" task template --package turbo-pascal main.conf.tmpl'
+      - '"${DOSAPP_BIN}" task template --package turbo-pascal install.conf.tmpl'
+      - '"${DOSAPP_BIN}" task template --package turbo-pascal start.conf.tmpl'
 
   download:
     cmds:
@@ -46,7 +46,7 @@ tasks:
 
   link:
     cmds:
-      - 'gomplate -i "$(cat "${DOSAPP_PACKAGE_HOME}/turbo-pascal/bin/turbo.tmpl")" > "${DOSAPP_LINK_HOME}/turbo"'
+      - '"${DOSAPP_BIN}" task template --link --package turbo-pascal bin/turbo.tmpl'
       - chmod +x "${DOSAPP_LINK_HOME}/turbo"
 
   unlink:

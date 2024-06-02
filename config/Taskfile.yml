@@ -5,7 +5,7 @@ version: '3'
 tasks:
   init:
     cmds:
-      - gomplate -i "$(cat "${DOSAPP_ROOT}/config/main.conf.tmpl")" > "${DOSAPP_CONFIG_HOME}/main.conf"
+      - '"${DOSAPP_BIN}" task template --config main.conf.tmpl'
 
   start:
     cmds:
