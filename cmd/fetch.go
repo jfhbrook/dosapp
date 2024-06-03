@@ -6,8 +6,9 @@ package cmd
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	// "github.com/jfhbrook/dosapp/application"
-	// "github.com/jfhbrook/dosapp/config"
+
+	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/packages"
 )
 
 // fetchCmd represents the fetch command
@@ -21,10 +22,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Info().Msg("TODO: pull github releases")
-		log.Info().Msg("TODO: filter by app name")
-		log.Info().Msg("TODO: choose latest release (by sort order)")
-		log.Info().Msg("TODO: snag artifact url")
+		conf := config.NewConfig()
+		registry, err := packages.NewRegistry(conf)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create registry")
+		}
+
+		var url string
+		url, err = registry.PackageUrl("wordperfect")
+
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to get package url")
+		}
+
+		log.Warn().Msg(url)
 		log.Info().Msg("TODO: download artifact to ~/.cache/dosapp/packages")
 		log.Info().Msg("TODO: extract artifact to ~/.local/share/dosapp/packages")
 	},
