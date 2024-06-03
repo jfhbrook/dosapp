@@ -29,7 +29,9 @@ to quickly create a Cobra application.`,
 		}
 
 		var url string
-		url, err = registry.PackageUrl("wordperfect")
+		url, err = registry.PackageURL("wordperfect")
+
+		log.Info().Msg(url)
 
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to get package url")

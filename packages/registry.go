@@ -1,10 +1,13 @@
 package packages
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
+	"github.com/google/go-github/v62/github"
 	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/config"
@@ -19,11 +22,12 @@ func (e *RegistryError) Error() string {
 }
 
 type Registry interface {
-	PackageUrl(name string) (string, error)
+	PackageURL(name string) (string, error)
 }
 
 type GitHubRegistry struct {
 	Config     *config.Config
+	client     *github.Client
 	user       string
 	repository string
 }
@@ -35,17 +39,64 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
 
 	return &GitHubRegistry{
 		Config:     conf,
+		client:     github.NewClient(nil),
 		user:       user,
 		repository: repo,
 	}, nil
 }
 
-func (registry *GitHubRegistry) PackageUrl(name string) (string, error) {
-	log.Info().Msg("TODO: pull github releases")
-	log.Info().Msg("TODO: filter by app name")
-	log.Info().Msg("TODO: choose latest release (by sort order)")
-	log.Info().Msg("TODO: snag artifact url")
-	return "", nil
+func (registry *GitHubRegistry) Release(name string) (*Release, error) {
+	releases, _, err := registry.client.Repositories.ListReleases(
+		context.Background(),
+		registry.user,
+		registry.repository,
+		nil,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, release := range releases {
+		// TODO: A lot of this is factory stuff. Can/should I push it into
+		// Release?
+		tag := *release.TagName
+
+		log.Info().Msgf("Tag: %s", tag)
+
+		sp := strings.Split(tag, "-")
+		nameSp, version, releaseVersion := sp[:len(sp)-2], sp[len(sp)-2], sp[len(sp)-1]
+		releaseName := strings.Join(nameSp, "-")
+
+		url := *release.AssetsURL
+
+		if releaseName == name {
+			log.Debug().Msgf("Package %s found", name)
+			return NewRelease(
+				name,
+				version,
+				releaseVersion,
+				url,
+			)
+		}
+	}
+	log.Debug().Msgf("Package %s not found", name)
+	return nil, nil
+}
+
+func (registry *GitHubRegistry) PackageURL(name string) (string, error) {
+	release, err := registry.Release(name)
+
+	if err != nil {
+		return "", err
+	}
+
+	log.Debug().Msgf("Name: %s", release.Name)
+	log.Debug().Msgf("Version: %s", release.Version)
+	log.Debug().Msgf("Release Version: %s", release.ReleaseVersion)
+	log.Debug().Msgf("Release URL: %s", release.Url)
+
+	return release.Url, nil
 }
 
 func NewRegistry(conf *config.Config) (Registry, error) {

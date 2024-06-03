@@ -4,22 +4,18 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/google/go-github/v62/github"
-
 	"github.com/jfhbrook/dosapp/config"
 )
 
 type Artifact struct {
 	Name   string
 	Config *config.Config
-	client *github.Client
 }
 
 func NewArtifact(conf *config.Config, name string) *Artifact {
 	return &Artifact{
 		Name:   name,
 		Config: conf,
-		client: github.NewClient(nil),
 	}
 }
 
