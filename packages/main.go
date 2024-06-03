@@ -23,25 +23,12 @@ func (pkg *Package) Path() string {
 	return filepath.Join(pkg.Config.PackageHome, pkg.Name)
 }
 
-// TODO: Not sure this is where I want to put tarballs
-func (pkg *Package) ArtifactPath() string {
-	return filepath.Join(pkg.Config.DownloadHome, "packages", pkg.Name+".tar.gz")
-}
-
 func (pkg *Package) Remove() error {
-	if err := os.RemoveAll(pkg.ArtifactPath()); err != nil {
-		return err
-	}
 	return os.RemoveAll(pkg.Path())
 }
 
 func (pkg *Package) Exists() bool {
 	_, err := os.Stat(pkg.Path())
-	return err == nil
-}
-
-func (pkg *Package) ArtifactExists() bool {
-	_, err := os.Stat(pkg.ArtifactPath())
 	return err == nil
 }
 

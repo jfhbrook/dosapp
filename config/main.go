@@ -47,6 +47,7 @@ type Config struct {
 	DiskHome     string
 	LinkHome     string
 	PackageHome  string
+	ArtifactHome string
 	DownloadHome string
 	DiskA        string
 	DiskB        string
@@ -166,7 +167,7 @@ func NewConfig() *Config {
 	// TODO: This needs to be manually overridden in the config to point to this
 	// repo. Eventually, I'll implement package downloads from github releases.
 	packageHome := getEnv("DOSAPP_PACKAGE_HOME", filepath.Join(stateHome, "packages"))
-
+	artifactHome := getEnv("DOSAPP_ARTIFACT_HOME", filepath.Join(cacheHome, "artifacts"))
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
 	diskA := getEnv("DOSAPP_DISK_A", filepath.Join(os.Getenv("HOME"), "Documents"))
 	diskB := getEnv("DOSAPP_DISK_B", "")
@@ -190,6 +191,7 @@ func NewConfig() *Config {
 		DiskHome:     mustExpandUser(diskHome),
 		LinkHome:     mustExpandUser(linkHome),
 		PackageHome:  mustExpandUser(packageHome),
+		ArtifactHome: mustExpandUser(artifactHome),
 		DownloadHome: mustExpandUser(downloadHome),
 		DiskA:        mustExpandUser(diskA),
 		DiskB:        mustExpandUser(diskB),
@@ -216,6 +218,8 @@ func NewConfig() *Config {
 		"DOSAPP_LINK_HOME", conf.LinkHome,
 	).Str(
 		"DOSAPP_PACKAGE_HOME", conf.PackageHome,
+	).Str(
+		"DOSAPP_ARTIFACT_HOME", conf.ArtifactHome,
 	).Str(
 		"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
 	).Str(
@@ -246,6 +250,7 @@ func (conf *Config) Env() map[string]string {
 		"DOSAPP_DISK_HOME":     conf.DiskHome,
 		"DOSAPP_LINK_HOME":     conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME":  conf.PackageHome,
+		"DOSAPP_ARTIFACT_HOME": conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME": conf.DownloadHome,
 		"DOSAPP_DISK_A":        conf.DiskA,
 		"DOSAPP_DISK_B":        conf.DiskB,
@@ -270,6 +275,7 @@ func (conf *Config) Environ() []string {
 		"DOSAPP_DISK_HOME=" + conf.DiskHome,
 		"DOSAPP_LINK_HOME=" + conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME=" + conf.PackageHome,
+		"DOSAPP_ARTIFACT_HOME=" + conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME=" + conf.DownloadHome,
 		"DOSAPP_DISK_A=" + conf.DiskA,
 		"DOSAPP_DISK_B=" + conf.DiskB,
