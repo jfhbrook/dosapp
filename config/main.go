@@ -49,6 +49,7 @@ type Config struct {
 	PackageHome  string
 	ArtifactHome string
 	DownloadHome string
+	Registry     string
 	DiskA        string
 	DiskB        string
 	DiskC        string
@@ -169,6 +170,8 @@ func NewConfig() *Config {
 	packageHome := getEnv("DOSAPP_PACKAGE_HOME", filepath.Join(stateHome, "packages"))
 	artifactHome := getEnv("DOSAPP_ARTIFACT_HOME", filepath.Join(cacheHome, "artifacts"))
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
+	// TODO: Support multiple registries (requires switch from dotenv to yaml)
+	registry := getEnv("DOSAPP_REGISTRY", "github://jfhbrook/dosapp")
 	diskA := getEnv("DOSAPP_DISK_A", filepath.Join(os.Getenv("HOME"), "Documents"))
 	diskB := getEnv("DOSAPP_DISK_B", "")
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
@@ -193,6 +196,7 @@ func NewConfig() *Config {
 		PackageHome:  mustExpandUser(packageHome),
 		ArtifactHome: mustExpandUser(artifactHome),
 		DownloadHome: mustExpandUser(downloadHome),
+		Registry:     registry,
 		DiskA:        mustExpandUser(diskA),
 		DiskB:        mustExpandUser(diskB),
 		DiskC:        mustExpandUser(diskC),
@@ -223,6 +227,8 @@ func NewConfig() *Config {
 	).Str(
 		"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
 	).Str(
+		"DOSAPP_REGISTRY", conf.Registry,
+	).Str(
 		"DOSBOX_DISK_A", conf.DiskA,
 	).Str(
 		"DOSBOX_DISK_B", conf.DiskB,
@@ -252,6 +258,7 @@ func (conf *Config) Env() map[string]string {
 		"DOSAPP_PACKAGE_HOME":  conf.PackageHome,
 		"DOSAPP_ARTIFACT_HOME": conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME": conf.DownloadHome,
+		"DOSAPP_REGISTRY":      conf.Registry,
 		"DOSAPP_DISK_A":        conf.DiskA,
 		"DOSAPP_DISK_B":        conf.DiskB,
 		"DOSAPP_DISK_C":        conf.DiskC,
