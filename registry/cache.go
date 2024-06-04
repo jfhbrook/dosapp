@@ -17,6 +17,18 @@ func newCache(conf *config.Config) *Cache {
 	}
 }
 
+func (ch *Cache) Mkdir() error {
+	return os.MkdirAll(ch.Config.PackageCacheHome, 0755)
+}
+
+func (ch *Cache) Clear() error {
+	err := os.RemoveAll(ch.Config.PackageCacheHome)
+	if err != nil {
+		return err
+	}
+	return ch.Mkdir()
+}
+
 func (ch *Cache) CachedPackagePath(name string) string {
 	return filepath.Join(ch.Config.PackageCacheHome, name)
 }
