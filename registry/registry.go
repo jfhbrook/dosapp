@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/google/go-github/v62/github"
 	"github.com/rs/zerolog/log"
 
@@ -23,6 +24,42 @@ func (e *RegistryError) Error() string {
 
 type Registry interface {
 	PackageURL(name string) (string, error)
+}
+
+type GitHubRelease struct {
+	Name           string
+	Version        *semver.Version
+	ReleaseVersion *semver.Version
+	Url            string
+}
+
+func NewGitHubRelease(name string, version string, releaseVersion string, url string) (*GitHubRelease, error) {
+	ver, err := semver.NewVersion(version)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var relVer *semver.Version
+	relVer, err = semver.NewVersion(releaseVersion)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &GitHubRelease{
+		Name:           name,
+		Version:        ver,
+		ReleaseVersion: relVer,
+		Url:            url,
+	}, nil
+}
+
+// TODO: This is the url for the HTML list of assets, not the actual asset
+// we want. That's going to be on Assets[0].Url.
+// See: https://github.com/google/go-github/blob/446a2968d80b0adc88c54a1c1a17a05b25e83ea7/github/repos_releases.go#L68
+func (release *GitHubRelease) URL() string {
+	return release.Url
 }
 
 type GitHubRegistry struct {
@@ -45,7 +82,7 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
 	}, nil
 }
 
-func (reg *GitHubRegistry) Release(name string) (*Release, error) {
+func (reg *GitHubRegistry) GitHubRelease(name string) (*GitHubRelease, error) {
 	releases, _, err := reg.client.Repositories.ListReleases(
 		context.Background(),
 		reg.user,
@@ -59,7 +96,7 @@ func (reg *GitHubRegistry) Release(name string) (*Release, error) {
 
 	for _, release := range releases {
 		// TODO: A lot of this is factory stuff. Can/should I push it into
-		// Release?
+		// GitHubRelease?
 		tag := *release.TagName
 
 		log.Info().Msgf("Tag: %s", tag)
@@ -72,7 +109,7 @@ func (reg *GitHubRegistry) Release(name string) (*Release, error) {
 
 		if releaseName == name {
 			log.Debug().Msgf("Package %s found", name)
-			return NewRelease(
+			return NewGitHubRelease(
 				name,
 				version,
 				releaseVersion,
@@ -85,7 +122,7 @@ func (reg *GitHubRegistry) Release(name string) (*Release, error) {
 }
 
 func (reg *GitHubRegistry) PackageURL(name string) (string, error) {
-	release, err := reg.Release(name)
+	release, err := reg.GitHubRelease(name)
 
 	if err != nil {
 		return "", err
@@ -93,8 +130,8 @@ func (reg *GitHubRegistry) PackageURL(name string) (string, error) {
 
 	log.Debug().Msgf("Name: %s", release.Name)
 	log.Debug().Msgf("Version: %s", release.Version)
-	log.Debug().Msgf("Release Version: %s", release.ReleaseVersion)
-	log.Debug().Msgf("Release URL: %s", release.Url)
+	log.Debug().Msgf("GitHubRelease Version: %s", release.ReleaseVersion)
+	log.Debug().Msgf("GitHubRelease URL: %s", release.Url)
 
 	return release.Url, nil
 }
