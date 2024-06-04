@@ -28,6 +28,24 @@ to quickly create a Cobra application.`,
 			log.Fatal().Err(err).Msg("failed to create registry")
 		}
 
+		// pkg, err := registry.FindPackage("wordperfect")
+		//
+		// if err != nil {
+		// 	log.Fatal().Err(err).Msg("failed to find package")
+		// }
+		//
+		// if !pkg.Fetched() || forceFlag {
+		//   if err := pkg.Fetch(); err != nil {
+		//		 log.Fatal().Err(err).Msg("failed to fetch package")
+		//   }
+		// }
+		//
+		// if !pkg.Extracted() || forceFlag {
+		//   if err := pkg.Extract(); err != nil {
+		// 	   log.Fatal().Err(err).Msg("failed to download package")
+		//   }
+		// }
+
 		var url string
 		url, err = registry.PackageURL("wordperfect")
 
