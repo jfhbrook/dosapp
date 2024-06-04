@@ -26,10 +26,6 @@ func localPackagePath(name string, conf *config.Config) string {
 	return filepath.Join(conf.PackageHome, name)
 }
 
-func localArtifactPath(name string, conf *config.Config) string {
-	return filepath.Join(conf.ArtifactHome, name+".tar.gz")
-}
-
 func fromPackageFile(name string, conf *config.Config) (*Package, error) {
 	var file []byte
 	var err error
@@ -78,22 +74,43 @@ func (pkg *Package) RemotePackageExists() bool {
 	return pkg.remotePackageExists
 }
 
+func (pkg *Package) LocalArtifactPath() string {
+	return filepath.Join(pkg.Config.ArtifactHome, pkg.Name+".tar.gz")
+}
+
 func (pkg *Package) LocalArtifactExists() bool {
-	_, err := os.Stat(localArtifactPath(pkg.Name, pkg.Config))
+	_, err := os.Stat(pkg.LocalArtifactPath())
 	return err == nil
+}
+
+func (pkg *Package) RemoveLocalArtifact() error {
+	return os.RemoveAll(pkg.LocalArtifactPath())
 }
 
 func (pkg *Package) LocalPackagePath() string {
 	return filepath.Join(pkg.Config.PackageHome, pkg.Name)
 }
 
-func (pkg *Package) Remove() error {
+func (pkg *Package) LocalPackageExists() bool {
+	_, err := os.Stat(pkg.LocalPackagePath())
+	return err == nil
+}
+
+func (pkg *Package) RemoveLocalPackage() error {
 	return os.RemoveAll(pkg.LocalPackagePath())
 }
 
-func (pkg *Package) Exists() bool {
-	_, err := os.Stat(pkg.LocalPackagePath())
+func (pkg *Package) LocalPackageCachePath() string {
+	return filepath.Join(pkg.Config.PackageCacheHome, pkg.Name)
+}
+
+func (pkg *Package) LocalPackageCacheExists() bool {
+	_, err := os.Stat(pkg.LocalPackageCachePath())
 	return err == nil
+}
+
+func (pkg *Package) RemoveLocalCachePackage() error {
+	return os.RemoveAll(pkg.LocalPackageCachePath())
 }
 
 func (pkg *Package) EnvFileTemplatePath() string {
