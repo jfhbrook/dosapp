@@ -19,6 +19,7 @@ type Package struct {
 	UpstreamVersion        *semver.Version
 	UpstreamReleaseVersion *semver.Version
 	URL                    string
+	Cache                  *Cache
 	Config                 *config.Config
 }
 
@@ -51,12 +52,14 @@ func newPackage(
 	version *semver.Version,
 	releaseVersion *semver.Version,
 	url string,
+	ch *Cache,
 	conf *config.Config,
 ) *Package {
 	var pkg *Package
 	var err error
 
 	pkg, err = fromPackageFile(name, conf)
+	pkg.Cache = ch
 
 	if err != nil {
 		log.Debug().Err(err).Msg("Package not found locally")
@@ -102,17 +105,16 @@ func (pkg *Package) RemoveLocalPackage() error {
 
 // TODO: Cache needs its own struct so we can RemoveAll on it
 
-func (pkg *Package) LocalPackageCachePath() string {
-	return filepath.Join(pkg.Config.PackageCacheHome, pkg.Name)
+func (pkg *Package) CachedPackagePath() string {
+	return pkg.Cache.CachedPackagePath(pkg.Name)
 }
 
-func (pkg *Package) LocalPackageCacheExists() bool {
-	_, err := os.Stat(pkg.LocalPackageCachePath())
-	return err == nil
+func (pkg *Package) CachedPackageExists() bool {
+	return pkg.Cache.CachedPackageExists(pkg.Name)
 }
 
 func (pkg *Package) RemoveLocalCachePackage() error {
-	return os.RemoveAll(pkg.LocalPackageCachePath())
+	return pkg.Cache.RemoveCachedPackage(pkg.Name)
 }
 
 // TODO: Download package from URL

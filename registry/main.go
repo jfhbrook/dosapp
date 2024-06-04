@@ -16,6 +16,7 @@ func (e *RegistryError) Error() string {
 }
 
 type Registry interface {
+	Cache() *Cache
 	FindPackage(name string) *Package
 }
 
