@@ -23,16 +23,13 @@ type GitHubRelease struct {
 func newGitHubRelease(ghRelease *github.RepositoryRelease) (*GitHubRelease, error) {
 	tag := *ghRelease.TagName
 
-	log.Info().Msgf("Tag: %s", tag)
+	log.Debug().Str("tag", tag).Msgf("Loading release: %s", tag)
 
 	sp := strings.Split(tag, "-")
 	nameSp, ver, relVer := sp[:len(sp)-2], sp[len(sp)-2], sp[len(sp)-1]
 	releaseName := strings.Join(nameSp, "-")
 
-	// TODO: This is the url for the HTML list of assets, not the actual asset
-	// we want. That's going to be on Assets[0].Url.
-	// See: https://github.com/google/go-github/blob/446a2968d80b0adc88c54a1c1a17a05b25e83ea7/github/repos_releases.go#L68
-	url := *ghRelease.AssetsURL
+	url := *ghRelease.Assets[0].BrowserDownloadURL
 
 	version, err := semver.NewVersion(ver)
 
