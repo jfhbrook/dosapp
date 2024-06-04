@@ -25,12 +25,6 @@ to quickly create a Cobra application.`,
 		conf := config.NewConfig()
 		reg := registry.NewRegistry(conf)
 
-		// pkg, err := registry.FindPackage("wordperfect")
-		//
-		// if err != nil {
-		// 	log.Fatal().Err(err).Msg("failed to find package")
-		// }
-		//
 		// if !pkg.Fetched() || forceFlag {
 		//   if err := pkg.Fetch(); err != nil {
 		//		 log.Fatal().Err(err).Msg("failed to fetch package")
@@ -45,15 +39,27 @@ to quickly create a Cobra application.`,
 
 		pkg := reg.FindPackage("wordperfect")
 
-		if !pkg.LocalPackageExists() {
-			log.Warn().Msg("no local version found")
-		} else {
-			log.Warn().Msg(pkg.LocalVersion.String())
-			log.Warn().Msg(pkg.LocalReleaseVersion.String())
+		/*
+			if !pkg.LocalPackageExists() {
+				log.Warn().Msg("No local version found")
+			} else {
+				log.Warn().Msg(pkg.LocalVersion.String())
+				log.Warn().Msg(pkg.LocalReleaseVersion.String())
+			}
+		*/
+
+		if !pkg.RemotePackageExists() {
+			log.Fatal().Msg("Package not found")
 		}
-		log.Warn().Msgf("local artifact exists: %t", pkg.LocalArtifactExists())
-		log.Warn().Msg(pkg.URL)
-		log.Info().Msg("TODO: download artifact to ~/.cache/dosapp/packages")
+
+		if !pkg.LocalArtifactExists() {
+			if err := pkg.Fetch(); err != nil {
+				log.Fatal().Err(err).Msg("Failed to fetch package")
+			}
+		} else {
+			log.Info().Msg("To download the package again, use the --force flag")
+		}
+
 		log.Info().Msg("TODO: extract artifact to ~/.local/share/dosapp/packages")
 	},
 }

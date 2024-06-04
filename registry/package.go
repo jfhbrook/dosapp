@@ -1,11 +1,14 @@
 package registry
 
 import (
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/rs/zerolog/log"
+	"github.com/schollz/progressbar/v3"
 	"gopkg.in/yaml.v2"
 
 	"github.com/jfhbrook/dosapp/config"
@@ -33,6 +36,7 @@ func fromPackageFile(name string, conf *config.Config) (*Package, error) {
 	file, err = os.ReadFile(filepath.Join(localPackagePath(name, conf), "Package.yml"))
 
 	pkg := &Package{}
+	pkg.Name = name
 	pkg.Config = conf
 
 	if err != nil {
@@ -81,6 +85,10 @@ func (pkg *Package) LocalArtifactPath() string {
 	return filepath.Join(pkg.Config.ArtifactHome, pkg.Name+".tar.gz")
 }
 
+func (pkg *Package) MkArtifactDir() error {
+	return os.MkdirAll(pkg.Config.ArtifactHome, 0755)
+}
+
 func (pkg *Package) LocalArtifactExists() bool {
 	_, err := os.Stat(pkg.LocalArtifactPath())
 	return err == nil
@@ -115,9 +123,35 @@ func (pkg *Package) RemoveCachedPackage() error {
 	return pkg.Cache.RemoveCachedPackage(pkg.Name)
 }
 
-// TODO: Download package from URL
-func (pkg *Package) Download() error {
-	return nil
+func (pkg *Package) Fetch() error {
+	if err := pkg.MkArtifactDir(); err != nil {
+		return err
+	}
+
+	resp, err := http.Get(pkg.URL)
+
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	var f *os.File
+	f, err = os.Create(pkg.LocalArtifactPath())
+	defer f.Close()
+
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to create file")
+		return err
+	}
+
+	bar := progressbar.DefaultBytes(
+		resp.ContentLength,
+		"Downloading "+pkg.Name+"...",
+	)
+	_, err = io.Copy(io.MultiWriter(f, bar), resp.Body)
+
+	return err
 }
 
 // TODO: Unpack package into cache, then move into package home
