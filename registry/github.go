@@ -17,7 +17,7 @@ type GitHubRelease struct {
 	Name           string
 	Version        *semver.Version
 	ReleaseVersion *semver.Version
-	Url            string
+	URL            string
 }
 
 func newGitHubRelease(ghRelease *github.RepositoryRelease) (*GitHubRelease, error) {
@@ -48,14 +48,10 @@ func newGitHubRelease(ghRelease *github.RepositoryRelease) (*GitHubRelease, erro
 		Name:           releaseName,
 		Version:        version,
 		ReleaseVersion: releaseVersion,
-		Url:            url,
+		URL:            url,
 	}
 
 	return release, nil
-}
-
-func (release *GitHubRelease) URL() string {
-	return release.Url
 }
 
 type GitHubRegistry struct {
@@ -98,29 +94,42 @@ func (reg *GitHubRegistry) Release(name string) (*GitHubRelease, error) {
 		}
 
 		if release.Name == name {
-			log.Debug().Str(
-				"name", name,
-			).Str(
-				"version", release.Version.String(),
-			).Str(
-				"releaseVersion", release.ReleaseVersion.String(),
-			).Str(
-				"url", release.Url,
-			).Msgf("Package %s found", name)
-
 			return release, nil
 		}
 	}
-	log.Debug().Msgf("Package %s not found", name)
 	return nil, nil
 }
 
-func (reg *GitHubRegistry) PackageURL(name string) (string, error) {
+func (reg *GitHubRegistry) FindPackage(name string) *Package {
 	release, err := reg.Release(name)
 
 	if err != nil {
-		return "", err
-	}
+		log.Debug().Err(err).Msgf("Upstream package %s not found", name)
 
-	return release.Url, nil
+		return newPackage(
+			name,
+			nil,
+			nil,
+			"",
+			reg.Config,
+		)
+	} else {
+		log.Debug().Str(
+			"name", name,
+		).Str(
+			"version", release.Version.String(),
+		).Str(
+			"releaseVersion", release.ReleaseVersion.String(),
+		).Str(
+			"url", release.URL,
+		).Msgf("Upstream package %s found", name)
+
+		return newPackage(
+			name,
+			release.Version,
+			release.ReleaseVersion,
+			release.URL,
+			reg.Config,
+		)
+	}
 }

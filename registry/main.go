@@ -16,7 +16,7 @@ func (e *RegistryError) Error() string {
 }
 
 type Registry interface {
-	PackageURL(name string) (string, error)
+	FindPackage(name string) *Package
 }
 
 func NewRegistry(conf *config.Config) (Registry, error) {

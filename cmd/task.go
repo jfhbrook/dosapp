@@ -47,14 +47,23 @@ var templateCmd = &cobra.Command{
 		if packageName != "" && configFlag {
 			log.Fatal().Msg("Cannot specify both a package and a config template")
 		} else if packageName != "" {
+			var reg registry.Registry
+			var err error
+
+			reg, err = registry.NewRegistry(conf)
+
+			if err != nil {
+				log.Panic().Err(err).Msg("Failed to load registry")
+			}
 			app := application.NewApp(conf, packageName)
-			pkg := registry.NewPackage(conf, packageName)
-			src := filepath.Join(pkg.Path(), templatePath)
+			pkg := reg.FindPackage(packageName)
+			src := filepath.Join(pkg.LocalPackagePath(), templatePath)
 
 			env = app.Env()
 
 			if linkFlag {
-				linkPath, err := filepath.Rel("bin", templatePath)
+				var linkPath string
+				linkPath, err = filepath.Rel("bin", templatePath)
 
 				if err != nil {
 					log.Panic().Err(err).Msg("Failed to get relative path")
@@ -72,8 +81,6 @@ var templateCmd = &cobra.Command{
 			).Str(
 				"src", src,
 			).Msg("Parsing package template")
-
-			var err error
 
 			tmpl, err = template.New(templateName).ParseFiles(src)
 

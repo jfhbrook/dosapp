@@ -23,9 +23,9 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.NewConfig()
-		registry, err := registry.NewRegistry(conf)
+		reg, err := registry.NewRegistry(conf)
 		if err != nil {
-			log.Fatal().Err(err).Msg("failed to create registry")
+			log.Fatal().Err(err).Msg("failed to load registry")
 		}
 
 		// pkg, err := registry.FindPackage("wordperfect")
@@ -46,14 +46,12 @@ to quickly create a Cobra application.`,
 		//   }
 		// }
 
-		var url string
-		url, err = registry.PackageURL("wordperfect")
+		pkg := reg.FindPackage("wordperfect")
 
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to get package url")
-		}
-
-		log.Warn().Msg(url)
+		log.Warn().Msg(pkg.LocalVersion.String())
+		log.Warn().Msg(pkg.LocalReleaseVersion.String())
+		log.Warn().Msgf("local artifact exists: %t", pkg.LocalArtifactExists())
+		log.Warn().Msg(pkg.URL)
 		log.Info().Msg("TODO: download artifact to ~/.cache/dosapp/packages")
 		log.Info().Msg("TODO: extract artifact to ~/.local/share/dosapp/packages")
 	},
