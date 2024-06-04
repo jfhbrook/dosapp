@@ -20,31 +20,43 @@ type GitHubRelease struct {
 	Url            string
 }
 
-func newGitHubRelease(name string, version string, releaseVersion string, url string) (*GitHubRelease, error) {
-	ver, err := semver.NewVersion(version)
+func newGitHubRelease(ghRelease *github.RepositoryRelease) (*GitHubRelease, error) {
+	tag := *ghRelease.TagName
+
+	log.Info().Msgf("Tag: %s", tag)
+
+	sp := strings.Split(tag, "-")
+	nameSp, ver, relVer := sp[:len(sp)-2], sp[len(sp)-2], sp[len(sp)-1]
+	releaseName := strings.Join(nameSp, "-")
+
+	// TODO: This is the url for the HTML list of assets, not the actual asset
+	// we want. That's going to be on Assets[0].Url.
+	// See: https://github.com/google/go-github/blob/446a2968d80b0adc88c54a1c1a17a05b25e83ea7/github/repos_releases.go#L68
+	url := *ghRelease.AssetsURL
+
+	version, err := semver.NewVersion(ver)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var relVer *semver.Version
-	relVer, err = semver.NewVersion(releaseVersion)
+	var releaseVersion *semver.Version
+	releaseVersion, err = semver.NewVersion(relVer)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &GitHubRelease{
-		Name:           name,
-		Version:        ver,
-		ReleaseVersion: relVer,
+	release := &GitHubRelease{
+		Name:           releaseName,
+		Version:        version,
+		ReleaseVersion: releaseVersion,
 		Url:            url,
-	}, nil
+	}
+
+	return release, nil
 }
 
-// TODO: This is the url for the HTML list of assets, not the actual asset
-// we want. That's going to be on Assets[0].Url.
-// See: https://github.com/google/go-github/blob/446a2968d80b0adc88c54a1c1a17a05b25e83ea7/github/repos_releases.go#L68
 func (release *GitHubRelease) URL() string {
 	return release.Url
 }
@@ -69,7 +81,7 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
 	}, nil
 }
 
-func (reg *GitHubRegistry) GitHubRelease(name string) (*GitHubRelease, error) {
+func (reg *GitHubRegistry) Release(name string) (*GitHubRelease, error) {
 	releases, _, err := reg.client.Repositories.ListReleases(
 		context.Background(),
 		reg.user,
@@ -81,27 +93,25 @@ func (reg *GitHubRegistry) GitHubRelease(name string) (*GitHubRelease, error) {
 		return nil, err
 	}
 
-	for _, release := range releases {
-		// TODO: A lot of this is factory stuff. Can/should I push it into
-		// GitHubRelease?
-		tag := *release.TagName
+	for _, ghRelease := range releases {
+		release, err := newGitHubRelease(ghRelease)
 
-		log.Info().Msgf("Tag: %s", tag)
+		if err != nil {
+			return nil, err
+		}
 
-		sp := strings.Split(tag, "-")
-		nameSp, version, releaseVersion := sp[:len(sp)-2], sp[len(sp)-2], sp[len(sp)-1]
-		releaseName := strings.Join(nameSp, "-")
+		if release.Name == name {
+			log.Debug().Str(
+				"name", name,
+			).Str(
+				"version", release.Version.String(),
+			).Str(
+				"releaseVersion", release.ReleaseVersion.String(),
+			).Str(
+				"url", release.Url,
+			).Msgf("Package %s found", name)
 
-		url := *release.AssetsURL
-
-		if releaseName == name {
-			log.Debug().Msgf("Package %s found", name)
-			return newGitHubRelease(
-				name,
-				version,
-				releaseVersion,
-				url,
-			)
+			return release, nil
 		}
 	}
 	log.Debug().Msgf("Package %s not found", name)
@@ -109,16 +119,11 @@ func (reg *GitHubRegistry) GitHubRelease(name string) (*GitHubRelease, error) {
 }
 
 func (reg *GitHubRegistry) PackageURL(name string) (string, error) {
-	release, err := reg.GitHubRelease(name)
+	release, err := reg.Release(name)
 
 	if err != nil {
 		return "", err
 	}
-
-	log.Debug().Msgf("Name: %s", release.Name)
-	log.Debug().Msgf("Version: %s", release.Version)
-	log.Debug().Msgf("GitHubRelease Version: %s", release.ReleaseVersion)
-	log.Debug().Msgf("GitHubRelease URL: %s", release.Url)
 
 	return release.Url, nil
 }
