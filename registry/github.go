@@ -119,6 +119,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 			nil,
 			nil,
 			"",
+			reg.Cache(),
 			reg.Config,
 		)
 	} else {
@@ -137,6 +138,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 			release.Version,
 			release.ReleaseVersion,
 			release.URL,
+			reg.Cache(),
 			reg.Config,
 		)
 	}

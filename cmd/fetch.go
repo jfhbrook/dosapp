@@ -48,8 +48,12 @@ to quickly create a Cobra application.`,
 
 		pkg := reg.FindPackage("wordperfect")
 
-		log.Warn().Msg(pkg.LocalVersion.String())
-		log.Warn().Msg(pkg.LocalReleaseVersion.String())
+		if !pkg.LocalPackageExists() {
+			log.Warn().Msg("no local version found")
+		} else {
+			log.Warn().Msg(pkg.LocalVersion.String())
+			log.Warn().Msg(pkg.LocalReleaseVersion.String())
+		}
 		log.Warn().Msgf("local artifact exists: %t", pkg.LocalArtifactExists())
 		log.Warn().Msg(pkg.URL)
 		log.Info().Msg("TODO: download artifact to ~/.cache/dosapp/packages")
