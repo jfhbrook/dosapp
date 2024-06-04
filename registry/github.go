@@ -20,7 +20,7 @@ type GitHubRelease struct {
 	Url            string
 }
 
-func NewGitHubRelease(name string, version string, releaseVersion string, url string) (*GitHubRelease, error) {
+func newGitHubRelease(name string, version string, releaseVersion string, url string) (*GitHubRelease, error) {
 	ver, err := semver.NewVersion(version)
 
 	if err != nil {
@@ -96,7 +96,7 @@ func (reg *GitHubRegistry) GitHubRelease(name string) (*GitHubRelease, error) {
 
 		if releaseName == name {
 			log.Debug().Msgf("Package %s found", name)
-			return NewGitHubRelease(
+			return newGitHubRelease(
 				name,
 				version,
 				releaseVersion,
