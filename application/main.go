@@ -20,11 +20,7 @@ type App struct {
 }
 
 func NewApp(conf *config.Config, name string) *App {
-	reg, err := registry.NewRegistry(conf)
-
-	if err != nil {
-		log.Panic().Err(err).Msg("Failed to configure registry")
-	}
+	reg := registry.NewRegistry(conf)
 
 	pkg := reg.FindPackage(name)
 

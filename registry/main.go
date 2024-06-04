@@ -1,33 +1,26 @@
 package registry
 
 import (
-	"fmt"
 	"net/url"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/config"
 )
-
-type RegistryError struct {
-	message string
-}
-
-func (e *RegistryError) Error() string {
-	return e.message
-}
 
 type Registry interface {
 	Cache() *Cache
 	FindPackage(name string) *Package
 }
 
-func NewRegistry(conf *config.Config) (Registry, error) {
+func NewRegistry(conf *config.Config) Registry {
 	u, err := url.Parse(conf.Registry)
 	if err != nil {
-		return nil, err
+		log.Fatal().Err(err).Msg("Failed to parse registry URL.")
 	}
 
 	if u.Scheme != "github" {
-		return nil, &RegistryError{fmt.Sprintf("Forge %s is unsupported.", u.Scheme)}
+		log.Fatal().Str("forge", u.Scheme).Msgf("Forge is unsupported.")
 	}
 
 	return newGitHubRegistry(conf, u)

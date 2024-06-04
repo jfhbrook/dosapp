@@ -50,11 +50,7 @@ var templateCmd = &cobra.Command{
 			var reg registry.Registry
 			var err error
 
-			reg, err = registry.NewRegistry(conf)
-
-			if err != nil {
-				log.Panic().Err(err).Msg("Failed to load registry")
-			}
+			reg = registry.NewRegistry(conf)
 			app := application.NewApp(conf, packageName)
 			pkg := reg.FindPackage(packageName)
 			src := filepath.Join(pkg.LocalPackagePath(), templatePath)

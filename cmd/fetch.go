@@ -23,10 +23,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.NewConfig()
-		reg, err := registry.NewRegistry(conf)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to load registry")
-		}
+		reg := registry.NewRegistry(conf)
 
 		// pkg, err := registry.FindPackage("wordperfect")
 		//

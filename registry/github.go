@@ -62,7 +62,7 @@ type GitHubRegistry struct {
 	repository string
 }
 
-func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
+func newGitHubRegistry(conf *config.Config, u *url.URL) Registry {
 	user := u.Host
 	re := regexp.MustCompile(`^/`)
 	repo := re.ReplaceAllString(u.Path, "")
@@ -75,7 +75,7 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
 		client:     github.NewClient(nil),
 		user:       user,
 		repository: repo,
-	}, nil
+	}
 }
 
 func (reg *GitHubRegistry) Cache() *Cache {
