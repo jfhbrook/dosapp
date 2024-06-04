@@ -103,8 +103,6 @@ func (pkg *Package) RemoveLocalPackage() error {
 	return os.RemoveAll(pkg.LocalPackagePath())
 }
 
-// TODO: Cache needs its own struct so we can RemoveAll on it
-
 func (pkg *Package) CachedPackagePath() string {
 	return pkg.Cache.CachedPackagePath(pkg.Name)
 }
@@ -113,7 +111,7 @@ func (pkg *Package) CachedPackageExists() bool {
 	return pkg.Cache.CachedPackageExists(pkg.Name)
 }
 
-func (pkg *Package) RemoveLocalCachePackage() error {
+func (pkg *Package) RemoveCachedPackage() error {
 	return pkg.Cache.RemoveCachedPackage(pkg.Name)
 }
 
