@@ -100,6 +100,8 @@ func (pkg *Package) RemoveLocalPackage() error {
 	return os.RemoveAll(pkg.LocalPackagePath())
 }
 
+// TODO: Cache needs its own struct so we can RemoveAll on it
+
 func (pkg *Package) LocalPackageCachePath() string {
 	return filepath.Join(pkg.Config.PackageCacheHome, pkg.Name)
 }
@@ -111,6 +113,16 @@ func (pkg *Package) LocalPackageCacheExists() bool {
 
 func (pkg *Package) RemoveLocalCachePackage() error {
 	return os.RemoveAll(pkg.LocalPackageCachePath())
+}
+
+// TODO: Download package from URL
+func (pkg *Package) Download() error {
+	return nil
+}
+
+// TODO: Unpack package into cache, then move into package home
+func (pkg *Package) Unpack() error {
+	return nil
 }
 
 func (pkg *Package) EnvFileTemplatePath() string {
