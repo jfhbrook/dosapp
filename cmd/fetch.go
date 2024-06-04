@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/packages"
+	"github.com/jfhbrook/dosapp/registry"
 )
 
 // fetchCmd represents the fetch command
@@ -23,7 +23,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.NewConfig()
-		registry, err := packages.NewRegistry(conf)
+		registry, err := registry.NewRegistry(conf)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create registry")
 		}

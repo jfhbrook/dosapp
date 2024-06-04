@@ -14,7 +14,7 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/packages"
+	"github.com/jfhbrook/dosapp/registry"
 )
 
 var taskCmd = &cobra.Command{
@@ -48,7 +48,7 @@ var templateCmd = &cobra.Command{
 			log.Fatal().Msg("Cannot specify both a package and a config template")
 		} else if packageName != "" {
 			app := application.NewApp(conf, packageName)
-			pkg := packages.NewPackage(conf, packageName)
+			pkg := registry.NewPackage(conf, packageName)
 			src := filepath.Join(pkg.Path(), templatePath)
 
 			env = app.Env()

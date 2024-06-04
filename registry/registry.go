@@ -1,4 +1,4 @@
-package packages
+package registry
 
 import (
 	"context"
@@ -45,11 +45,11 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) (Registry, error) {
 	}, nil
 }
 
-func (registry *GitHubRegistry) Release(name string) (*Release, error) {
-	releases, _, err := registry.client.Repositories.ListReleases(
+func (reg *GitHubRegistry) Release(name string) (*Release, error) {
+	releases, _, err := reg.client.Repositories.ListReleases(
 		context.Background(),
-		registry.user,
-		registry.repository,
+		reg.user,
+		reg.repository,
 		nil,
 	)
 
@@ -84,8 +84,8 @@ func (registry *GitHubRegistry) Release(name string) (*Release, error) {
 	return nil, nil
 }
 
-func (registry *GitHubRegistry) PackageURL(name string) (string, error) {
-	release, err := registry.Release(name)
+func (reg *GitHubRegistry) PackageURL(name string) (string, error) {
+	release, err := reg.Release(name)
 
 	if err != nil {
 		return "", err
