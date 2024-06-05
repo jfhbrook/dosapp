@@ -9,6 +9,7 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/registry"
 )
 
 var unlinkCmd = &cobra.Command{
@@ -21,7 +22,9 @@ var unlinkCmd = &cobra.Command{
 
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		app := application.NewApp(conf, appName)
+		reg := registry.NewRegistry(conf)
+		pkg := reg.FindPackage(appName)
+		app := application.NewApp(appName, pkg, conf)
 
 		if !app.Exists() {
 			log.Fatal().Msgf("%s not found. Did you install it?", appName)

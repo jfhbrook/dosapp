@@ -51,8 +51,9 @@ var templateCmd = &cobra.Command{
 			var err error
 
 			reg = registry.NewRegistry(conf)
-			app := application.NewApp(conf, packageName)
+
 			pkg := reg.FindPackage(packageName)
+			app := application.NewApp(packageName, pkg, conf)
 			src := filepath.Join(pkg.LocalPackagePath(), templatePath)
 
 			env = app.Env()

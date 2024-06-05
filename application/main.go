@@ -19,11 +19,7 @@ type App struct {
 	Package *registry.Package
 }
 
-func NewApp(conf *config.Config, name string) *App {
-	reg := registry.NewRegistry(conf)
-
-	pkg := reg.FindPackage(name)
-
+func NewApp(name string, pkg *registry.Package, conf *config.Config) *App {
 	return &App{
 		Name:    name,
 		Config:  conf,

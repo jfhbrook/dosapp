@@ -9,6 +9,7 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/registry"
 )
 
 var installCmd = &cobra.Command{
@@ -30,7 +31,9 @@ var installCmd = &cobra.Command{
 			refreshFlag = true
 		}
 
-		app := application.NewApp(conf, appName)
+		reg := registry.NewRegistry(conf)
+		pkg := reg.FindPackage(appName)
+		app := application.NewApp(appName, pkg, conf)
 
 		if err := app.Mkdir(); err != nil {
 			log.Panic().Err(err).Msg("Failed to create app directory")
