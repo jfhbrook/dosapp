@@ -114,7 +114,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 	if err != nil {
 		log.Debug().Err(err).Msgf("Upstream package %s not found", name)
 
-		return newPackage(
+		return NewPackage(
 			name,
 			nil,
 			nil,
@@ -133,7 +133,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 			"url", release.URL,
 		).Msgf("Upstream package %s found", name)
 
-		return newPackage(
+		return NewPackage(
 			name,
 			release.Version,
 			release.ReleaseVersion,

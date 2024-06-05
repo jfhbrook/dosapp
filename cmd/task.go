@@ -47,12 +47,9 @@ var templateCmd = &cobra.Command{
 		if packageName != "" && configFlag {
 			log.Fatal().Msg("Cannot specify both a package and a config template")
 		} else if packageName != "" {
-			var reg registry.Registry
 			var err error
 
-			reg = registry.NewRegistry(conf)
-
-			pkg := reg.FindPackage(packageName)
+			pkg := registry.NewPackage(packageName, nil, nil, "", nil, conf)
 			app := application.NewApp(packageName, pkg, conf)
 			src := filepath.Join(pkg.LocalPackagePath(), templatePath)
 

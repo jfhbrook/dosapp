@@ -33,7 +33,10 @@ func localPackagePath(name string, conf *config.Config) string {
 	return filepath.Join(conf.PackageHome, name)
 }
 
-func newPackage(
+// TODO: This call signature is great for a remote package, but many of my
+// use cases are for packages only installed locally - and those are having
+// to inject a bunch of null values.
+func NewPackage(
 	name string,
 	version *semver.Version,
 	releaseVersion *semver.Version,
@@ -120,6 +123,22 @@ func (pkg *Package) StagedPackageExists() bool {
 
 func (pkg *Package) RemoveStagedPackage() error {
 	return pkg.Stage.RemoveStagedPackage(pkg)
+}
+
+func (pkg *Package) HasUpdate() bool {
+	if pkg.LocalVersion == nil {
+		return true
+	}
+
+	if pkg.LocalVersion.LessThan(pkg.UpstreamVersion) {
+		return true
+	}
+
+	if pkg.LocalVersion.Equal(pkg.UpstreamVersion) && pkg.LocalReleaseVersion.LessThan(pkg.UpstreamReleaseVersion) {
+		return true
+	}
+
+	return false
 }
 
 func (pkg *Package) Fetch() error {

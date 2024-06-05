@@ -23,8 +23,7 @@ var removeCmd = &cobra.Command{
 
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		reg := registry.NewRegistry(conf)
-		pkg := reg.FindPackage(appName)
+		pkg := registry.NewPackage(appName, nil, nil, "", nil, conf)
 		app := application.NewApp(appName, pkg, conf)
 
 		if !app.Exists() {
