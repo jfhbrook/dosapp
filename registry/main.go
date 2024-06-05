@@ -9,7 +9,7 @@ import (
 )
 
 type Registry interface {
-	Cache() *Cache
+	Stage() *Stage
 	FindPackage(name string) *Package
 }
 

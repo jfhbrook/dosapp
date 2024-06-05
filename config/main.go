@@ -47,7 +47,7 @@ type Config struct {
 	DiskHome         string
 	LinkHome         string
 	PackageHome      string
-	PackageCacheHome string
+	PackageStageHome string
 	ArtifactHome     string
 	DownloadHome     string
 	Registry         string
@@ -163,7 +163,7 @@ func NewConfig() *Config {
 		}
 	}
 
-	packageCacheHome := filepath.Join(cacheHome, "packages")
+	packageStageHome := filepath.Join(cacheHome, "packages")
 
 	diskHome := getEnv("DOSAPP_DISK_HOME", filepath.Join(os.Getenv("HOME"), "dosapp"))
 	linkHome := getEnv("DOSAPP_LINK_HOME", filepath.Join(os.Getenv("HOME"), ".local", "bin"))
@@ -197,7 +197,7 @@ func NewConfig() *Config {
 		DiskHome:         mustExpandUser(diskHome),
 		LinkHome:         mustExpandUser(linkHome),
 		PackageHome:      mustExpandUser(packageHome),
-		PackageCacheHome: mustExpandUser(packageCacheHome),
+		PackageStageHome: mustExpandUser(packageStageHome),
 		ArtifactHome:     mustExpandUser(artifactHome),
 		DownloadHome:     mustExpandUser(downloadHome),
 		Registry:         registry,
@@ -227,7 +227,7 @@ func NewConfig() *Config {
 	).Str(
 		"DOSAPP_PACKAGE_HOME", conf.PackageHome,
 	).Str(
-		"DOSAPP_PACKAGE_CACHE_HOME", conf.PackageCacheHome,
+		"DOSAPP_PACKAGE_STAGE_HOME", conf.PackageStageHome,
 	).Str(
 		"DOSAPP_ARTIFACT_HOME", conf.ArtifactHome,
 	).Str(
@@ -262,7 +262,7 @@ func (conf *Config) Env() map[string]string {
 		"DOSAPP_DISK_HOME":          conf.DiskHome,
 		"DOSAPP_LINK_HOME":          conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME":       conf.PackageHome,
-		"DOSAPP_PACKAGE_CACHE_HOME": conf.PackageCacheHome,
+		"DOSAPP_PACKAGE_STAGE_HOME": conf.PackageStageHome,
 		"DOSAPP_ARTIFACT_HOME":      conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME":      conf.DownloadHome,
 		"DOSAPP_REGISTRY":           conf.Registry,
@@ -289,7 +289,7 @@ func (conf *Config) Environ() []string {
 		"DOSAPP_DISK_HOME=" + conf.DiskHome,
 		"DOSAPP_LINK_HOME=" + conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME=" + conf.PackageHome,
-		"DOSAPP_PACKAGE_CACHE_HOME=" + conf.PackageCacheHome,
+		"DOSAPP_PACKAGE_STAGE_HOME=" + conf.PackageStageHome,
 		"DOSAPP_ARTIFACT_HOME=" + conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME=" + conf.DownloadHome,
 		"DOSAPP_DISK_A=" + conf.DiskA,

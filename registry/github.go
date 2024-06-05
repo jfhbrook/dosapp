@@ -55,7 +55,7 @@ func newGitHubRelease(ghRelease *github.RepositoryRelease) (*GitHubRelease, erro
 }
 
 type GitHubRegistry struct {
-	cache      *Cache
+	stage      *Stage
 	Config     *config.Config
 	client     *github.Client
 	user       string
@@ -67,10 +67,10 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) Registry {
 	re := regexp.MustCompile(`^/`)
 	repo := re.ReplaceAllString(u.Path, "")
 
-	ch := newCache(conf)
+	ch := newStage(conf)
 
 	return &GitHubRegistry{
-		cache:      ch,
+		stage:      ch,
 		Config:     conf,
 		client:     github.NewClient(nil),
 		user:       user,
@@ -78,8 +78,8 @@ func newGitHubRegistry(conf *config.Config, u *url.URL) Registry {
 	}
 }
 
-func (reg *GitHubRegistry) Cache() *Cache {
-	return reg.cache
+func (reg *GitHubRegistry) Stage() *Stage {
+	return reg.stage
 }
 
 func (reg *GitHubRegistry) Release(name string) (*GitHubRelease, error) {
@@ -119,7 +119,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 			nil,
 			nil,
 			"",
-			reg.Cache(),
+			reg.Stage(),
 			reg.Config,
 		)
 	} else {
@@ -138,7 +138,7 @@ func (reg *GitHubRegistry) FindPackage(name string) *Package {
 			release.Version,
 			release.ReleaseVersion,
 			release.URL,
-			reg.Cache(),
+			reg.Stage(),
 			reg.Config,
 		)
 	}

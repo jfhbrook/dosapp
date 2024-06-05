@@ -24,7 +24,7 @@ type Package struct {
 	UpstreamVersion        *semver.Version
 	UpstreamReleaseVersion *semver.Version
 	URL                    string
-	Cache                  *Cache
+	Stage                  *Stage
 	Config                 *config.Config
 }
 
@@ -58,14 +58,14 @@ func newPackage(
 	version *semver.Version,
 	releaseVersion *semver.Version,
 	url string,
-	ch *Cache,
+	ch *Stage,
 	conf *config.Config,
 ) *Package {
 	var pkg *Package
 	var err error
 
 	pkg, err = fromPackageFile(name, conf)
-	pkg.Cache = ch
+	pkg.Stage = ch
 
 	if err != nil {
 		log.Debug().Err(err).Msg("Package not found locally")
@@ -113,16 +113,16 @@ func (pkg *Package) RemoveLocalPackage() error {
 	return os.RemoveAll(pkg.LocalPackagePath())
 }
 
-func (pkg *Package) CachedPackagePath() string {
-	return pkg.Cache.CachedPackagePath(pkg.Name)
+func (pkg *Package) StagedPackagePath() string {
+	return pkg.Stage.StagedPackagePath(pkg.Name)
 }
 
-func (pkg *Package) CachedPackageExists() bool {
-	return pkg.Cache.CachedPackageExists(pkg.Name)
+func (pkg *Package) StagedPackageExists() bool {
+	return pkg.Stage.StagedPackageExists(pkg.Name)
 }
 
-func (pkg *Package) RemoveCachedPackage() error {
-	return pkg.Cache.RemoveCachedPackage(pkg.Name)
+func (pkg *Package) RemoveStagedPackage() error {
+	return pkg.Stage.RemoveStagedPackage(pkg.Name)
 }
 
 func (pkg *Package) Fetch() error {
@@ -168,7 +168,7 @@ func (pkg *Package) Fetch() error {
 
 func (pkg *Package) Unpack() error {
 	artifactPath := pkg.LocalArtifactPath()
-	cachedPath := pkg.Cache.CachedPackagePath(pkg.Name)
+	stagedPath := pkg.Stage.StagedPackagePath(pkg.Name)
 
 	// TODO: Ideally I would create an App, but that then creates a Package.
 	// I'll need to refactor it to inject the registry. But if we're injecting
@@ -193,10 +193,10 @@ func (pkg *Package) Unpack() error {
 	tar := tar.NewReader(gzipReader)
 
 	log.Debug().Str(
-		"staging", pkg.Cache.CachedPackagePath(pkg.Name),
+		"staging", pkg.Stage.StagedPackagePath(pkg.Name),
 	).Msg("Cleaning up staged package")
 
-	if err := pkg.Cache.RemoveCachedPackage(pkg.Name); err != nil {
+	if err := pkg.Stage.RemoveStagedPackage(pkg.Name); err != nil {
 		return err
 	}
 
@@ -205,7 +205,7 @@ func (pkg *Package) Unpack() error {
 	).Str(
 		"source", artifactPath,
 	).Str(
-		"destination", cachedPath,
+		"destination", stagedPath,
 	).Msg("Unpacking artifact...")
 
 	for {
@@ -217,7 +217,7 @@ func (pkg *Package) Unpack() error {
 			return err
 		}
 
-		filename := filepath.Join(cachedPath, hdr.Name)
+		filename := filepath.Join(stagedPath, hdr.Name)
 
 		log.Debug().Str("file", filename).Msgf("Unpacking %s...", filename)
 		f, err := os.Create(filename)
@@ -245,7 +245,7 @@ func (pkg *Package) Unpack() error {
 	).Str(
 		"source", artifactPath,
 	).Str(
-		"destination", cachedPath,
+		"destination", stagedPath,
 	).Msg("Installing package...")
 
 	err = os.RemoveAll(appPath)
@@ -256,7 +256,7 @@ func (pkg *Package) Unpack() error {
 
 	// NOTE: There are some limitations to this approach - for instance, rename
 	// can't copy between drives.
-	err = os.Rename(cachedPath, appPath)
+	err = os.Rename(stagedPath, appPath)
 
 	if err != nil {
 		return err
@@ -267,7 +267,7 @@ func (pkg *Package) Unpack() error {
 	).Str(
 		"source", artifactPath,
 	).Str(
-		"destination", cachedPath,
+		"destination", stagedPath,
 	).Msg("Installation complete")
 
 	return nil
