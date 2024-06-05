@@ -11,16 +11,16 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/rs/zerolog/log"
 	"github.com/schollz/progressbar/v3"
-	"gopkg.in/yaml.v2"
 
 	"github.com/jfhbrook/dosapp/config"
+	"github.com/jfhbrook/dosapp/manifest"
 )
 
 type Package struct {
-	Name                   string `yaml:"name"`
+	Name                   string
 	remotePackageExists    bool
-	LocalVersion           *semver.Version `yaml:"version"`
-	LocalReleaseVersion    *semver.Version `yaml:"release_version"`
+	LocalVersion           *semver.Version
+	LocalReleaseVersion    *semver.Version
 	UpstreamVersion        *semver.Version
 	UpstreamReleaseVersion *semver.Version
 	URL                    string
@@ -32,27 +32,6 @@ func localPackagePath(name string, conf *config.Config) string {
 	return filepath.Join(conf.PackageHome, name)
 }
 
-func fromPackageFile(name string, conf *config.Config) (*Package, error) {
-	var file []byte
-	var err error
-	file, err = os.ReadFile(filepath.Join(localPackagePath(name, conf), "Package.yml"))
-
-	pkg := &Package{}
-	pkg.Name = name
-	pkg.Config = conf
-
-	if err != nil {
-		return pkg, err
-	} else {
-		err = yaml.Unmarshal(file, pkg)
-		if err != nil {
-			return pkg, err
-		}
-	}
-
-	return pkg, nil
-}
-
 func newPackage(
 	name string,
 	version *semver.Version,
@@ -61,21 +40,26 @@ func newPackage(
 	ch *Stage,
 	conf *config.Config,
 ) *Package {
-	var pkg *Package
-	var err error
+	packagePath := filepath.Join(localPackagePath(name, conf), "Package.yml")
 
-	pkg, err = fromPackageFile(name, conf)
+	pkg := &Package{}
+	pkg.Name = name
+	pkg.Config = conf
+
 	pkg.Stage = ch
-
-	if err != nil {
-		log.Debug().Err(err).Msg("Package not found locally")
-	}
-
 	pkg.remotePackageExists = version != nil && releaseVersion != nil && url != ""
 	pkg.UpstreamVersion = version
 	pkg.UpstreamReleaseVersion = releaseVersion
 	pkg.URL = url
 
+	m, err := manifest.FromFile(packagePath)
+
+	if err != nil {
+		log.Debug().Str("path", packagePath).Err(err).Msg("Installed package not found")
+	} else {
+		pkg.LocalVersion = m.Version
+		pkg.LocalReleaseVersion = m.ReleaseVersion
+	}
 	return pkg
 }
 
