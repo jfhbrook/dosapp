@@ -126,9 +126,19 @@ func (pkg *Package) RemoveCachedPackage() error {
 }
 
 func (pkg *Package) Fetch() error {
+	artifactPath := pkg.LocalArtifactPath()
+
 	if err := pkg.MkArtifactDir(); err != nil {
 		return err
 	}
+
+	log.Info().Str(
+		"name", pkg.Name,
+	).Str(
+		"url", pkg.URL,
+	).Str(
+		"path", artifactPath,
+	).Msgf("Fetching %s...", pkg.Name)
 
 	resp, err := http.Get(pkg.URL)
 
@@ -139,26 +149,36 @@ func (pkg *Package) Fetch() error {
 	defer resp.Body.Close()
 
 	var f *os.File
-	f, err = os.Create(pkg.LocalArtifactPath())
+	f, err = os.Create(artifactPath)
 	defer f.Close()
 
 	if err != nil {
-		log.Warn().Err(err).Msg("Failed to create file")
+		log.Warn().Err(err).Str("path", artifactPath).Msg("Failed to create artifact")
 		return err
 	}
 
 	bar := progressbar.DefaultBytes(
 		resp.ContentLength,
-		"Downloading "+pkg.Name+"...",
+		pkg.Name,
 	)
 	_, err = io.Copy(io.MultiWriter(f, bar), resp.Body)
 
 	return err
 }
 
-// TODO: Lots of logs
 func (pkg *Package) Unpack() error {
-	artifact, err := os.Open(pkg.LocalArtifactPath())
+	artifactPath := pkg.LocalArtifactPath()
+	cachedPath := pkg.Cache.CachedPackagePath(pkg.Name)
+
+	// TODO: Ideally I would create an App, but that then creates a Package.
+	// I'll need to refactor it to inject the registry. But if we're injecting
+	// the registry, maybe I should create it in the Config?
+	appPath := filepath.Join(pkg.Config.ConfigHome, "apps", pkg.Name)
+
+	log.Debug().Msgf("Unpacking %s (%s)", pkg.Name, artifactPath)
+
+	artifact, err := os.Open(artifactPath)
+	defer artifact.Close()
 
 	if err != nil {
 		return err
@@ -170,17 +190,23 @@ func (pkg *Package) Unpack() error {
 		return err
 	}
 
+	tar := tar.NewReader(gzipReader)
+
+	log.Debug().Str(
+		"staging", pkg.Cache.CachedPackagePath(pkg.Name),
+	).Msg("Cleaning up staged package")
+
 	if err := pkg.Cache.RemoveCachedPackage(pkg.Name); err != nil {
 		return err
 	}
 
-	tar := tar.NewReader(gzipReader)
-
-	cachedPath := pkg.Cache.CachedPackagePath(pkg.Name)
-	// TODO: Ideally I would create an App, but that then creates a Package.
-	// I'll need to refactor it to inject the registry. But if we're injecting
-	// the registry, maybe I should create it in the Config?
-	appPath := filepath.Join(pkg.Config.ConfigHome, "apps", pkg.Name)
+	log.Info().Str(
+		"package", pkg.Name,
+	).Str(
+		"source", artifactPath,
+	).Str(
+		"destination", cachedPath,
+	).Msg("Unpacking artifact...")
 
 	for {
 		hdr, err := tar.Next()
@@ -192,16 +218,35 @@ func (pkg *Package) Unpack() error {
 		}
 
 		filename := filepath.Join(cachedPath, hdr.Name)
+
+		log.Debug().Str("file", filename).Msgf("Unpacking %s...", filename)
 		f, err := os.Create(filename)
+		defer f.Close()
 
 		if err != nil {
 			return err
 		}
 
-		if _, err := io.Copy(f, tar); err != nil {
+		bar := progressbar.DefaultBytes(-1, filename)
+
+		if _, err := io.Copy(io.MultiWriter(f, bar), tar); err != nil {
 			return err
 		}
 	}
+
+	log.Debug().Str(
+		"package", pkg.Name,
+	).Str(
+		"path", artifactPath,
+	).Msg("Unpacking complete")
+
+	log.Info().Str(
+		"package", pkg.Name,
+	).Str(
+		"source", artifactPath,
+	).Str(
+		"destination", cachedPath,
+	).Msg("Installing package...")
 
 	err = os.RemoveAll(appPath)
 
@@ -211,7 +256,21 @@ func (pkg *Package) Unpack() error {
 
 	// NOTE: There are some limitations to this approach - for instance, rename
 	// can't copy between drives.
-	return os.Rename(cachedPath, appPath)
+	err = os.Rename(cachedPath, appPath)
+
+	if err != nil {
+		return err
+	}
+
+	log.Info().Str(
+		"package", pkg.Name,
+	).Str(
+		"source", artifactPath,
+	).Str(
+		"destination", cachedPath,
+	).Msg("Installation complete")
+
+	return nil
 }
 
 func (pkg *Package) EnvFileTemplatePath() string {
