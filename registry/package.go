@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"io"
 	"net/http"
 	"os"
@@ -154,8 +156,49 @@ func (pkg *Package) Fetch() error {
 	return err
 }
 
-// TODO: Unpack package into cache, then move into package home
+// TODO: Lots of logs
 func (pkg *Package) Unpack() error {
+	artifact, err := os.Open(pkg.LocalArtifactPath())
+
+	if err != nil {
+		return err
+	}
+
+	gzipReader, err := gzip.NewReader(artifact)
+
+	if err != nil {
+		return err
+	}
+
+	if err := pkg.Cache.RemoveCachedPackage(pkg.Name); err != nil {
+		return err
+	}
+
+	tar := tar.NewReader(gzipReader)
+
+	for {
+		hdr, err := tar.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		filename := filepath.Join(pkg.Cache.CachedPackagePath(pkg.Name), hdr.Name)
+		f, err := os.Create(filename)
+
+		if err != nil {
+			return err
+		}
+
+		if _, err := io.Copy(f, tar); err != nil {
+			return err
+		}
+	}
+
+	// TODO: Move cached package to package home
+
 	return nil
 }
 
