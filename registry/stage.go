@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -29,15 +30,22 @@ func (ch *Stage) Clear() error {
 	return ch.Mkdir()
 }
 
-func (ch *Stage) StagedPackagePath(name string) string {
-	return filepath.Join(ch.Config.PackageStageHome, name)
+func (ch *Stage) StagedPackagePath(pkg *Package) string {
+	return filepath.Join(
+		ch.Config.PackageStageHome,
+		fmt.Sprintf("%s-%s-%s",
+			pkg.Name,
+			pkg.UpstreamVersion,
+			pkg.UpstreamReleaseVersion,
+		),
+	)
 }
 
-func (ch *Stage) StagedPackageExists(name string) bool {
-	_, err := os.Stat(ch.StagedPackagePath(name))
+func (ch *Stage) StagedPackageExists(pkg *Package) bool {
+	_, err := os.Stat(ch.StagedPackagePath(pkg))
 	return err == nil
 }
 
-func (ch *Stage) RemoveStagedPackage(name string) error {
-	return os.RemoveAll(ch.StagedPackagePath(name))
+func (ch *Stage) RemoveStagedPackage(pkg *Package) error {
+	return os.RemoveAll(ch.StagedPackagePath(pkg))
 }

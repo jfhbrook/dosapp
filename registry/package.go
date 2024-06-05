@@ -3,6 +3,7 @@ package registry
 import (
 	"archive/tar"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -68,7 +69,15 @@ func (pkg *Package) RemotePackageExists() bool {
 }
 
 func (pkg *Package) LocalArtifactPath() string {
-	return filepath.Join(pkg.Config.ArtifactHome, pkg.Name+".tar.gz")
+	return filepath.Join(
+		pkg.Config.ArtifactHome,
+		fmt.Sprintf(
+			"%s-%s-%s.tar.gz",
+			pkg.Name,
+			pkg.UpstreamVersion.String(),
+			pkg.UpstreamReleaseVersion.String(),
+		),
+	)
 }
 
 func (pkg *Package) MkArtifactDir() error {
@@ -82,6 +91,10 @@ func (pkg *Package) LocalArtifactExists() bool {
 
 func (pkg *Package) RemoveLocalArtifact() error {
 	return os.RemoveAll(pkg.LocalArtifactPath())
+}
+
+func (pkg *Package) MkPackageHome() error {
+	return os.MkdirAll(pkg.Config.PackageHome, 0755)
 }
 
 func (pkg *Package) LocalPackagePath() string {
@@ -98,15 +111,15 @@ func (pkg *Package) RemoveLocalPackage() error {
 }
 
 func (pkg *Package) StagedPackagePath() string {
-	return pkg.Stage.StagedPackagePath(pkg.Name)
+	return pkg.Stage.StagedPackagePath(pkg)
 }
 
 func (pkg *Package) StagedPackageExists() bool {
-	return pkg.Stage.StagedPackageExists(pkg.Name)
+	return pkg.Stage.StagedPackageExists(pkg)
 }
 
 func (pkg *Package) RemoveStagedPackage() error {
-	return pkg.Stage.RemoveStagedPackage(pkg.Name)
+	return pkg.Stage.RemoveStagedPackage(pkg)
 }
 
 func (pkg *Package) Fetch() error {
@@ -152,12 +165,7 @@ func (pkg *Package) Fetch() error {
 
 func (pkg *Package) Unpack() error {
 	artifactPath := pkg.LocalArtifactPath()
-	stagedPath := pkg.Stage.StagedPackagePath(pkg.Name)
-
-	// TODO: Ideally I would create an App, but that then creates a Package.
-	// I'll need to refactor it to inject the registry. But if we're injecting
-	// the registry, maybe I should create it in the Config?
-	appPath := filepath.Join(pkg.Config.ConfigHome, "apps", pkg.Name)
+	packagePath := pkg.LocalPackagePath()
 
 	log.Debug().Msgf("Unpacking %s (%s)", pkg.Name, artifactPath)
 
@@ -165,6 +173,7 @@ func (pkg *Package) Unpack() error {
 	defer artifact.Close()
 
 	if err != nil {
+		log.Info().Msg("lol")
 		return err
 	}
 
@@ -177,10 +186,14 @@ func (pkg *Package) Unpack() error {
 	tar := tar.NewReader(gzipReader)
 
 	log.Debug().Str(
-		"staging", pkg.Stage.StagedPackagePath(pkg.Name),
-	).Msg("Cleaning up staged package")
+		"staging", pkg.Config.PackageStageHome,
+	).Msg("Setting up staging area...")
 
-	if err := pkg.Stage.RemoveStagedPackage(pkg.Name); err != nil {
+	if err := pkg.Stage.Mkdir(); err != nil {
+		return err
+	}
+
+	if err := pkg.Stage.RemoveStagedPackage(pkg); err != nil {
 		return err
 	}
 
@@ -188,8 +201,6 @@ func (pkg *Package) Unpack() error {
 		"package", pkg.Name,
 	).Str(
 		"source", artifactPath,
-	).Str(
-		"destination", stagedPath,
 	).Msg("Unpacking artifact...")
 
 	for {
@@ -201,9 +212,18 @@ func (pkg *Package) Unpack() error {
 			return err
 		}
 
-		filename := filepath.Join(stagedPath, hdr.Name)
+		filename := filepath.Join(pkg.Config.PackageStageHome, hdr.Name)
 
-		log.Debug().Str("file", filename).Msgf("Unpacking %s...", filename)
+		if hdr.FileInfo().IsDir() {
+			log.Debug().Str(
+				"directory", filename,
+			).Msgf("Creating %s...", filename)
+
+			os.Mkdir(filename, 0755)
+			continue
+		}
+
+		log.Debug().Str("file", filename).Msg("Unpacking file...")
 		f, err := os.Create(filename)
 		defer f.Close()
 
@@ -218,21 +238,33 @@ func (pkg *Package) Unpack() error {
 		}
 	}
 
+	stagedPath := pkg.StagedPackagePath()
+
 	log.Debug().Str(
 		"package", pkg.Name,
 	).Str(
 		"path", artifactPath,
 	).Msg("Unpacking complete")
 
+	log.Debug().Str(
+		"DOSAPP_PACKAGE_HOME", pkg.Config.PackageHome,
+	).Msg("Setting up package home...")
+
+	err = pkg.MkPackageHome()
+
+	if err != nil {
+		return err
+	}
+
 	log.Info().Str(
 		"package", pkg.Name,
 	).Str(
 		"source", artifactPath,
 	).Str(
-		"destination", stagedPath,
+		"destination", packagePath,
 	).Msg("Installing package...")
 
-	err = os.RemoveAll(appPath)
+	err = os.RemoveAll(packagePath)
 
 	if err != nil {
 		return err
@@ -240,7 +272,7 @@ func (pkg *Package) Unpack() error {
 
 	// NOTE: There are some limitations to this approach - for instance, rename
 	// can't copy between drives.
-	err = os.Rename(stagedPath, appPath)
+	err = os.Rename(stagedPath, packagePath)
 
 	if err != nil {
 		return err
@@ -251,7 +283,7 @@ func (pkg *Package) Unpack() error {
 	).Str(
 		"source", artifactPath,
 	).Str(
-		"destination", stagedPath,
+		"destination", packagePath,
 	).Msg("Installation complete")
 
 	return nil

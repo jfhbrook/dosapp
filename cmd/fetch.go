@@ -21,59 +21,42 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		appName := args[0]
 		conf := config.NewConfig()
+
+		forceFlag, _ := cmd.Flags().GetBool("force")
+
 		reg := registry.NewRegistry(conf)
+		pkg := reg.FindPackage(appName)
 
-		// if !pkg.Fetched() || forceFlag {
-		//   if err := pkg.Fetch(); err != nil {
-		//		 log.Fatal().Err(err).Msg("failed to fetch package")
-		//   }
-		// }
-		//
-		// if !pkg.Extracted() || forceFlag {
-		//   if err := pkg.Extract(); err != nil {
-		// 	   log.Fatal().Err(err).Msg("failed to download package")
-		//   }
-		// }
+		forceDirections := false
 
-		pkg := reg.FindPackage("wordperfect")
-
-		/*
-			if !pkg.LocalPackageExists() {
-				log.Warn().Msg("No local version found")
+		if !pkg.LocalPackageExists() || forceFlag {
+			if !pkg.LocalArtifactExists() || forceFlag {
+				if err := pkg.Fetch(); err != nil {
+					log.Fatal().Err(err).Msg("Failed to fetch package from registry")
+				}
 			} else {
-				log.Warn().Msg(pkg.LocalVersion.String())
-				log.Warn().Msg(pkg.LocalReleaseVersion.String())
+				forceDirections = true
 			}
-		*/
 
-		if !pkg.RemotePackageExists() {
-			log.Fatal().Msg("Package not found")
-		}
-
-		if !pkg.LocalArtifactExists() {
-			if err := pkg.Fetch(); err != nil {
-				log.Fatal().Err(err).Msg("Failed to fetch package")
+			if err := pkg.Unpack(); err != nil {
+				log.Fatal().Err(err).Msg("Failed to unpack package artifact")
 			}
 		} else {
-			log.Info().Msg("To download the package again, use the --force flag")
+			forceDirections = true
 		}
 
-		log.Info().Msg("TODO: extract artifact to ~/.local/share/dosapp/packages")
+		if forceDirections {
+			log.Info().Msg("To fetch the latest package, use the --force flag")
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(fetchCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// fetchCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// fetchCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	fetchCmd.Flags().BoolP("force", "f", false, "Force installation of package")
 }
