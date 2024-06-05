@@ -176,6 +176,12 @@ func (pkg *Package) Unpack() error {
 
 	tar := tar.NewReader(gzipReader)
 
+	cachedPath := pkg.Cache.CachedPackagePath(pkg.Name)
+	// TODO: Ideally I would create an App, but that then creates a Package.
+	// I'll need to refactor it to inject the registry. But if we're injecting
+	// the registry, maybe I should create it in the Config?
+	appPath := filepath.Join(pkg.Config.ConfigHome, "apps", pkg.Name)
+
 	for {
 		hdr, err := tar.Next()
 		if err == io.EOF {
@@ -185,7 +191,7 @@ func (pkg *Package) Unpack() error {
 			return err
 		}
 
-		filename := filepath.Join(pkg.Cache.CachedPackagePath(pkg.Name), hdr.Name)
+		filename := filepath.Join(cachedPath, hdr.Name)
 		f, err := os.Create(filename)
 
 		if err != nil {
@@ -197,9 +203,15 @@ func (pkg *Package) Unpack() error {
 		}
 	}
 
-	// TODO: Move cached package to package home
+	err = os.RemoveAll(appPath)
 
-	return nil
+	if err != nil {
+		return err
+	}
+
+	// NOTE: There are some limitations to this approach - for instance, rename
+	// can't copy between drives.
+	return os.Rename(cachedPath, appPath)
 }
 
 func (pkg *Package) EnvFileTemplatePath() string {
