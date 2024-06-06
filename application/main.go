@@ -9,18 +9,18 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/registry"
+	"github.com/jfhbrook/dosapp/pacman"
 	"github.com/jfhbrook/dosapp/task"
 )
 
 type App struct {
 	Name    string
 	Config  *config.Config
-	Package *registry.Package
+	Package *pacman.Package
 }
 
 func NewApp(name string, conf *config.Config) *App {
-	pkg := registry.NewPackage(name, nil, nil, "", nil, conf)
+	pkg := pacman.NewPackage(name, nil, nil, "", nil, conf)
 	return &App{
 		Name:    name,
 		Config:  conf,

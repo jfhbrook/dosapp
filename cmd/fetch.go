@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 */
 package cmd
 
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/registry"
+	"github.com/jfhbrook/dosapp/pacman"
 )
 
 var fetchCmd = &cobra.Command{
@@ -24,7 +24,7 @@ will run automatically on 'dosapp install'.`,
 		forceFlag, _ := cmd.Flags().GetBool("force")
 		updateFlag, _ := cmd.Flags().GetBool("update")
 
-		reg := registry.NewRegistry(conf)
+		reg := pacman.NewRegistry(conf)
 		pkg := reg.FindPackage(appName)
 
 		if !pkg.RemotePackageExists() {
