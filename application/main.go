@@ -19,7 +19,8 @@ type App struct {
 	Package *registry.Package
 }
 
-func NewApp(name string, pkg *registry.Package, conf *config.Config) *App {
+func NewApp(name string, conf *config.Config) *App {
+	pkg := registry.NewPackage(name, nil, nil, "", nil, conf)
 	return &App{
 		Name:    name,
 		Config:  conf,

@@ -9,7 +9,6 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/registry"
 )
 
 var linkCmd = &cobra.Command{
@@ -22,8 +21,7 @@ var linkCmd = &cobra.Command{
 
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		pkg := registry.NewPackage(appName, nil, nil, "", nil, conf)
-		app := application.NewApp(appName, pkg, conf)
+		app := application.NewApp(appName, conf)
 
 		if !app.Exists() {
 			log.Fatal().Msgf("%s not found. Did you install it?", appName)

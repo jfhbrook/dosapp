@@ -14,7 +14,6 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/registry"
 )
 
 var taskCmd = &cobra.Command{
@@ -49,9 +48,8 @@ var templateCmd = &cobra.Command{
 		} else if packageName != "" {
 			var err error
 
-			pkg := registry.NewPackage(packageName, nil, nil, "", nil, conf)
-			app := application.NewApp(packageName, pkg, conf)
-			src := filepath.Join(pkg.LocalPackagePath(), templatePath)
+			app := application.NewApp(packageName, conf)
+			src := filepath.Join(app.Package.LocalPackagePath(), templatePath)
 
 			env = app.Env()
 

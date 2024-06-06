@@ -9,7 +9,6 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/registry"
 )
 
 var installCmd = &cobra.Command{
@@ -36,8 +35,7 @@ To fetch the package without installing, run 'dosapp fetch [app]'.`,
 			refreshFlag = true
 		}
 
-		pkg := registry.NewPackage(appName, nil, nil, "", nil, conf)
-		app := application.NewApp(appName, pkg, conf)
+		app := application.NewApp(appName, conf)
 
 		if err := app.Mkdir(); err != nil {
 			log.Panic().Err(err).Msg("Failed to create app directory")
