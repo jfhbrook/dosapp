@@ -227,7 +227,12 @@ var fetchCmd = &cobra.Command{
 	Use:   "fetch",
 	Short: "Fetch a package from the registry",
 	Long: `Fetch a package from the registry without installing it. This step
-will run automatically on 'dosapp install'.`,
+will run automatically on 'dosapp install'.
+
+The --update flag will update the package if a new version is available.
+
+The --force flag will force the package to update, even if a new version is
+not available.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		Fetch(cmd, args)

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/jfhbrook/dosapp/task"
@@ -131,7 +132,30 @@ func NewConfig() *Config {
 			"exits")
 	}
 
-	logLevel := getEnv("DOSAPP_LOG_LEVEL", "")
+	logLevel := "info"
+	zLevel := zerolog.GlobalLevel()
+
+	switch zLevel {
+	case zerolog.TraceLevel:
+		logLevel = "trace"
+	case zerolog.DebugLevel:
+		logLevel = "debug"
+	case zerolog.InfoLevel:
+		logLevel = "info"
+	case zerolog.WarnLevel:
+		logLevel = "warn"
+	case zerolog.ErrorLevel:
+		logLevel = "error"
+	case zerolog.FatalLevel:
+		logLevel = "fatal"
+	case zerolog.PanicLevel:
+		logLevel = "panic"
+	default:
+		log.Panic().Int64(
+			"level", int64(zLevel),
+		).Msg("Unexpected zerolog log level")
+	}
+
 	dosBoxBin := getEnv("DOSAPP_DOSBOX_BIN", "dosbox-x")
 	sevenZipBin := getEnv("DOSAPP_7Z_BIN", "7zz")
 
