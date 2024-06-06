@@ -104,7 +104,9 @@ To fetch the package without installing, run 'dosapp fetch [app]'.`,
 		editFlag, _ := cmd.Flags().GetBool("edit")
 		editFlagChanged := cmd.Flags().Changed("edit")
 		docsFlag, _ := cmd.Flags().GetBool("docs")
+		docsFlagChanged := cmd.Flags().Changed("docs")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
+		installerFlag, _ := cmd.Flags().GetBool("installer")
 
 		// Overwrite implies refresh, otherwise we can trust Fetch to give us
 		// the right value
@@ -173,14 +175,26 @@ To fetch the package without installing, run 'dosapp fetch [app]'.`,
 			}
 		}
 
-		if docsFlag {
+		// If we're not running the installer, then we only want to show the
+		// README if explicitly asked
+		var shouldShow bool
+
+		if installerFlag {
+			shouldShow = docsFlag
+		} else {
+			shouldShow = docsFlag && docsFlagChanged
+		}
+
+		if shouldShow {
 			if err := app.ShowDocs(); err != nil {
 				log.Error().Err(err).Msg("Failed to show docs")
 			}
 		}
 
-		if err := app.Run("install"); err != nil {
-			log.Panic().Err(err).Msg("Failed to install application")
+		if installerFlag {
+			if err := app.Run("install"); err != nil {
+				log.Panic().Err(err).Msg("Failed to install application")
+			}
 		}
 	},
 }
@@ -210,5 +224,5 @@ func init() {
 
 	installCmd.Flags().BoolP("edit", "e", true, "Edit environment files")
 	installCmd.Flags().BoolP("docs", "d", true, "Display the README")
-
+	installCmd.Flags().BoolP("installer", "I", true, "Run the DOS installer")
 }
