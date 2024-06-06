@@ -32,9 +32,6 @@ func localPackagePath(name string, conf *config.Config) string {
 	return filepath.Join(conf.PackageHome, name)
 }
 
-// TODO: This call signature is great for a remote package, but many of my
-// use cases are for packages only installed locally - and those are having
-// to inject a bunch of null values.
 func NewPackage(
 	name string,
 	version *semver.Version,
