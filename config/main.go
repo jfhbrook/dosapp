@@ -273,27 +273,11 @@ func NewConfig() *Config {
 }
 
 func (conf *Config) Env() map[string]string {
-	env := map[string]string{
-		"DOSAPP_BIN":                conf.Bin,
-		"DOSAPP_CONFIG_HOME":        conf.ConfigHome,
-		"DOSAPP_LOG_LEVEL":          conf.LogLevel,
-		"DOSAPP_DOSBOX_BIN":         conf.DosBoxBin,
-		"DOSAPP_7Z_BIN":             conf.SevenZipBin,
-		"DOSAPP_DATA_HOME":          conf.DataHome,
-		"DOSAPP_STATE_HOME":         conf.StateHome,
-		"DOSAPP_CACHE_HOME":         conf.CacheHome,
-		"DOSAPP_DISK_HOME":          conf.DiskHome,
-		"DOSAPP_LINK_HOME":          conf.LinkHome,
-		"DOSAPP_PACKAGE_HOME":       conf.PackageHome,
-		"DOSAPP_PACKAGE_STAGE_HOME": conf.PackageStageHome,
-		"DOSAPP_ARTIFACT_HOME":      conf.ArtifactHome,
-		"DOSAPP_DOWNLOAD_HOME":      conf.DownloadHome,
-		"DOSAPP_REGISTRY":           conf.Registry,
-		"DOSAPP_DISK_A":             conf.DiskA,
-		"DOSAPP_DISK_B":             conf.DiskB,
-		"DOSAPP_DISK_C":             conf.DiskC,
-		"EDITOR":                    conf.Editor.Bin,
-		"PAGER":                     conf.Pager.Bin,
+	env := make(map[string]string)
+
+	for _, kv := range conf.Environ() {
+		parts := strings.SplitN(kv, "=", 2)
+		env[parts[0]] = parts[1]
 	}
 
 	return env
