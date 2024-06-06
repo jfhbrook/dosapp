@@ -13,8 +13,8 @@ import (
 
 var startCmd = &cobra.Command{
 	Use:   "start [app]",
-	Short: "Start the application",
-	Long:  `Start the DOS application.`,
+	Short: "Start an application",
+	Long:  `Start a DOS application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		appName := args[0]
 		conf := config.NewConfig()
