@@ -123,6 +123,7 @@ var publishCmd = &cobra.Command{
 			"gh",
 			"release",
 			"create",
+			tag,
 			"-t", fmt.Sprintf(
 				"%s v%s - release %s",
 				man.Name, man.Version, man.ReleaseVersion,

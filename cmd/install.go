@@ -20,16 +20,24 @@ set up configuration for the app, and run its installer.
 To fetch the package without installing, run 'dosapp fetch [app]'.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		// TODO: We can't actually just run this command directly, because we
+		// also need to do the update/force flag song/dance here. Both of these
+		// commands should call a function that takes the boolean flags and
+		// returns new boolean flags.
 		fetchCmd.Run(cmd, args)
 
 		appName := args[0]
 		conf := config.NewConfig()
 
+		// updateFlag, _ := cmd.Flags().GetBool("update")
+		forceFlag, _ := cmd.Flags().GetBool("force")
 		editFlag, _ := cmd.Flags().GetBool("edit")
 		editFlagChanged := cmd.Flags().Changed("edit")
 		docsFlag, _ := cmd.Flags().GetBool("docs")
 		overwriteFlag, _ := cmd.Flags().GetBool("overwrite")
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
+
+		refreshFlag = refreshFlag || forceFlag
 
 		if overwriteFlag {
 			refreshFlag = true

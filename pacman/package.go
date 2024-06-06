@@ -191,7 +191,6 @@ func (pkg *Package) Unpack() error {
 	defer artifact.Close()
 
 	if err != nil {
-		log.Info().Msg("lol")
 		return err
 	}
 
@@ -232,16 +231,26 @@ func (pkg *Package) Unpack() error {
 
 		filename := filepath.Join(pkg.Config.PackageStageHome, hdr.Name)
 
+		// TODO: Tar will show directories, but may not have directories in-order.
+		// This means we need to create directories as soon as they show up in a
+		// file path. However, this should give us the intended permissions - we
+		// should MkdirAll and apply the permissions here.
 		if hdr.FileInfo().IsDir() {
-			log.Debug().Str(
-				"directory", filename,
-			).Msgf("Creating %s...", filename)
-
-			os.Mkdir(filename, 0755)
 			continue
 		}
 
 		log.Debug().Str("file", filename).Msg("Unpacking file...")
+
+		if dir := filepath.Dir(filename); dir != "" {
+			log.Debug().Str(
+				"directory", dir,
+			).Msgf("Creating %s...", dir)
+
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return err
+			}
+		}
+
 		f, err := os.Create(filename)
 		defer f.Close()
 
