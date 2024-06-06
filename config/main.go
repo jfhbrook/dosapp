@@ -112,7 +112,7 @@ func NewConfig() *Config {
 		if xdgConfigHome := os.Getenv("XDG_CONFIG_HOME"); xdgConfigHome != "" {
 			configHome = filepath.Join(xdgConfigHome, "dosapp")
 		} else {
-			configHome = filepath.Join(os.Getenv("HOME"), ".config", "dosapp")
+			configHome = filepath.Join("~", ".config", "dosapp")
 		}
 	}
 
@@ -164,7 +164,7 @@ func NewConfig() *Config {
 		if xdgDataHome := os.Getenv("XDG_DATA_HOME"); xdgDataHome != "" {
 			dataHome = filepath.Join(xdgDataHome, "dosapp")
 		} else {
-			dataHome = filepath.Join(os.Getenv("HOME"), ".local", "share", "dosapp")
+			dataHome = filepath.Join("~", ".local", "share", "dosapp")
 		}
 	}
 
@@ -173,7 +173,7 @@ func NewConfig() *Config {
 		if xdgStateHome := os.Getenv("XDG_STATE_HOME"); xdgStateHome != "" {
 			stateHome = filepath.Join(xdgStateHome, "dosapp")
 		} else {
-			stateHome = filepath.Join(os.Getenv("HOME"), ".local", "state", "dosapp")
+			stateHome = filepath.Join("~", ".local", "state", "dosapp")
 		}
 	}
 
@@ -182,14 +182,14 @@ func NewConfig() *Config {
 		if xdgCacheHome := os.Getenv("XDG_CACHE_HOME"); xdgCacheHome != "" {
 			cacheHome = filepath.Join(xdgCacheHome, "dosapp")
 		} else {
-			cacheHome = filepath.Join(os.Getenv("HOME"), ".cache", "dosapp")
+			cacheHome = filepath.Join("~", ".cache", "dosapp")
 		}
 	}
 
 	packageStageHome := filepath.Join(cacheHome, "packages")
 
-	diskHome := getEnv("DOSAPP_DISK_HOME", filepath.Join(os.Getenv("HOME"), "dosapp"))
-	linkHome := getEnv("DOSAPP_LINK_HOME", filepath.Join(os.Getenv("HOME"), ".local", "bin"))
+	diskHome := getEnv("DOSAPP_DISK_HOME", filepath.Join("~", "dosapp"))
+	linkHome := getEnv("DOSAPP_LINK_HOME", filepath.Join("~", ".local", "bin"))
 
 	// TODO: This needs to be manually overridden in the config to point to this
 	// repo. Eventually, I'll implement package downloads from github releases.
@@ -198,9 +198,9 @@ func NewConfig() *Config {
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
 	// TODO: Support multiple registries (requires switch from dotenv to yaml)
 	registry := getEnv("DOSAPP_REGISTRY", "github://jfhbrook/dosapp")
-	diskA := getEnv("DOSAPP_DISK_A", filepath.Join(os.Getenv("HOME"), "Documents"))
+	diskA := getEnv("DOSAPP_DISK_A", filepath.Join("~", "Documents"))
 	diskB := getEnv("DOSAPP_DISK_B", "")
-	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
+	diskC := getEnv("DOSAPP_DISK_C", filepath.Join("~", "dosapp", "c"))
 
 	edBin := os.Getenv("EDITOR")
 	pgBin := os.Getenv("PAGER")
