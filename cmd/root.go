@@ -17,7 +17,12 @@ var rootCmd = &cobra.Command{
 	Use:     "dosapp",
 	Version: "2.0.0",
 	Short:   "Manage DOSBox applications",
-	Long:    `Install, run and link DOSBox applications using task and go templates.`,
+	Long: `Install, start and link DOSBox applications.
+
+When no subcommand is given, dosapp will start DOSBox with the default
+configuration.
+
+To refresh the default configuration, run 'dosapp config'.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 		level := cmd.Flag("log-level").Value.String()
@@ -50,13 +55,6 @@ var rootCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.NewConfig()
-		refreshFlag, _ := cmd.Flags().GetBool("refresh")
-
-		if refreshFlag {
-			if err := conf.Refresh(); err != nil {
-				log.Panic().Err(err).Msg("Failed to refresh config")
-			}
-		}
 
 		if err := conf.Run("start"); err != nil {
 			log.Panic().Err(err).Msg("Failed to start")
