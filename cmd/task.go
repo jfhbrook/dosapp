@@ -14,7 +14,6 @@ import (
 
 	"github.com/jfhbrook/dosapp/application"
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/packages"
 )
 
 var taskCmd = &cobra.Command{
@@ -47,14 +46,16 @@ var templateCmd = &cobra.Command{
 		if packageName != "" && configFlag {
 			log.Fatal().Msg("Cannot specify both a package and a config template")
 		} else if packageName != "" {
-			app := application.NewApp(conf, packageName)
-			pkg := packages.NewPackage(conf, packageName)
-			src := filepath.Join(pkg.Path(), templatePath)
+			var err error
+
+			app := application.NewApp(packageName, conf)
+			src := filepath.Join(app.Package.LocalPackagePath(), templatePath)
 
 			env = app.Env()
 
 			if linkFlag {
-				linkPath, err := filepath.Rel("bin", templatePath)
+				var linkPath string
+				linkPath, err = filepath.Rel("bin", templatePath)
 
 				if err != nil {
 					log.Panic().Err(err).Msg("Failed to get relative path")
@@ -72,8 +73,6 @@ var templateCmd = &cobra.Command{
 			).Str(
 				"src", src,
 			).Msg("Parsing package template")
-
-			var err error
 
 			tmpl, err = template.New(templateName).ParseFiles(src)
 

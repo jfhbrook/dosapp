@@ -14,9 +14,14 @@ import (
 var installCmd = &cobra.Command{
 	Use:   "install [app]",
 	Short: "Install an application",
-	Long:  `Set up the package and configuration for the app, and run its installer.`,
-	Args:  cobra.ExactArgs(1),
+	Long: `Install an application. Download the package from the registry,
+set up configuration for the app, and run its installer.
+
+To fetch the package without installing, run 'dosapp fetch [app]'.`,
+	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		fetchCmd.Run(cmd, args)
+
 		appName := args[0]
 		conf := config.NewConfig()
 
@@ -30,7 +35,7 @@ var installCmd = &cobra.Command{
 			refreshFlag = true
 		}
 
-		app := application.NewApp(conf, appName)
+		app := application.NewApp(appName, conf)
 
 		if err := app.Mkdir(); err != nil {
 			log.Panic().Err(err).Msg("Failed to create app directory")
@@ -98,4 +103,5 @@ func init() {
 	installCmd.Flags().BoolP("docs", "d", true, "Display the README")
 	installCmd.Flags().BoolP("overwrite", "o", false, "Overwrite existing configuration")
 	installCmd.Flags().BoolP("refresh", "r", false, "Refresh task and conf files")
+	installCmd.Flags().BoolP("update", "U", false, "Update the package")
 }

@@ -36,23 +36,26 @@ var Templates = map[string]string{
 }
 
 type Config struct {
-	Bin          string
-	ConfigHome   string
-	LogLevel     string
-	DosBoxBin    string
-	SevenZipBin  string
-	DataHome     string
-	StateHome    string
-	CacheHome    string
-	DiskHome     string
-	LinkHome     string
-	PackageHome  string
-	DownloadHome string
-	DiskA        string
-	DiskB        string
-	DiskC        string
-	Editor       *editor.Editor
-	Pager        *pager.Pager
+	Bin              string
+	ConfigHome       string
+	LogLevel         string
+	DosBoxBin        string
+	SevenZipBin      string
+	DataHome         string
+	StateHome        string
+	CacheHome        string
+	DiskHome         string
+	LinkHome         string
+	PackageHome      string
+	PackageStageHome string
+	ArtifactHome     string
+	DownloadHome     string
+	Registry         string
+	DiskA            string
+	DiskB            string
+	DiskC            string
+	Editor           *editor.Editor
+	Pager            *pager.Pager
 }
 
 func getEnv(key string, fallback string) string {
@@ -160,14 +163,18 @@ func NewConfig() *Config {
 		}
 	}
 
+	packageStageHome := filepath.Join(cacheHome, "packages")
+
 	diskHome := getEnv("DOSAPP_DISK_HOME", filepath.Join(os.Getenv("HOME"), "dosapp"))
 	linkHome := getEnv("DOSAPP_LINK_HOME", filepath.Join(os.Getenv("HOME"), ".local", "bin"))
 
 	// TODO: This needs to be manually overridden in the config to point to this
 	// repo. Eventually, I'll implement package downloads from github releases.
 	packageHome := getEnv("DOSAPP_PACKAGE_HOME", filepath.Join(stateHome, "packages"))
-
+	artifactHome := getEnv("DOSAPP_ARTIFACT_HOME", filepath.Join(cacheHome, "artifacts"))
 	downloadHome := getEnv("DOSAPP_DOWNLOAD_HOME", filepath.Join(cacheHome, "downloads"))
+	// TODO: Support multiple registries (requires switch from dotenv to yaml)
+	registry := getEnv("DOSAPP_REGISTRY", "github://jfhbrook/dosapp")
 	diskA := getEnv("DOSAPP_DISK_A", filepath.Join(os.Getenv("HOME"), "Documents"))
 	diskB := getEnv("DOSAPP_DISK_B", "")
 	diskC := getEnv("DOSAPP_DISK_C", filepath.Join(os.Getenv("HOME"), "dosapp", "c"))
@@ -179,23 +186,26 @@ func NewConfig() *Config {
 	pg := pager.NewPager(os.Getenv("PAGER"))
 
 	conf := Config{
-		Bin:          bin,
-		ConfigHome:   mustExpandUser(configHome),
-		LogLevel:     logLevel,
-		DosBoxBin:    mustExpandUser(dosBoxBin),
-		SevenZipBin:  mustExpandUser(sevenZipBin),
-		DataHome:     mustExpandUser(dataHome),
-		StateHome:    mustExpandUser(stateHome),
-		CacheHome:    mustExpandUser(cacheHome),
-		DiskHome:     mustExpandUser(diskHome),
-		LinkHome:     mustExpandUser(linkHome),
-		PackageHome:  mustExpandUser(packageHome),
-		DownloadHome: mustExpandUser(downloadHome),
-		DiskA:        mustExpandUser(diskA),
-		DiskB:        mustExpandUser(diskB),
-		DiskC:        mustExpandUser(diskC),
-		Editor:       ed,
-		Pager:        pg,
+		Bin:              bin,
+		ConfigHome:       mustExpandUser(configHome),
+		LogLevel:         logLevel,
+		DosBoxBin:        mustExpandUser(dosBoxBin),
+		SevenZipBin:      mustExpandUser(sevenZipBin),
+		DataHome:         mustExpandUser(dataHome),
+		StateHome:        mustExpandUser(stateHome),
+		CacheHome:        mustExpandUser(cacheHome),
+		DiskHome:         mustExpandUser(diskHome),
+		LinkHome:         mustExpandUser(linkHome),
+		PackageHome:      mustExpandUser(packageHome),
+		PackageStageHome: mustExpandUser(packageStageHome),
+		ArtifactHome:     mustExpandUser(artifactHome),
+		DownloadHome:     mustExpandUser(downloadHome),
+		Registry:         registry,
+		DiskA:            mustExpandUser(diskA),
+		DiskB:            mustExpandUser(diskB),
+		DiskC:            mustExpandUser(diskC),
+		Editor:           ed,
+		Pager:            pg,
 	}
 
 	log.Debug().Str(
@@ -217,7 +227,13 @@ func NewConfig() *Config {
 	).Str(
 		"DOSAPP_PACKAGE_HOME", conf.PackageHome,
 	).Str(
+		"DOSAPP_PACKAGE_STAGE_HOME", conf.PackageStageHome,
+	).Str(
+		"DOSAPP_ARTIFACT_HOME", conf.ArtifactHome,
+	).Str(
 		"DOSAPP_DOWNLOAD_HOME", conf.DownloadHome,
+	).Str(
+		"DOSAPP_REGISTRY", conf.Registry,
 	).Str(
 		"DOSBOX_DISK_A", conf.DiskA,
 	).Str(
@@ -235,23 +251,26 @@ func NewConfig() *Config {
 
 func (conf *Config) Env() map[string]string {
 	env := map[string]string{
-		"DOSAPP_BIN":           conf.Bin,
-		"DOSAPP_CONFIG_HOME":   conf.ConfigHome,
-		"DOSAPP_LOG_LEVEL":     conf.LogLevel,
-		"DOSAPP_DOSBOX_BIN":    conf.DosBoxBin,
-		"DOSAPP_7Z_BIN":        conf.SevenZipBin,
-		"DOSAPP_DATA_HOME":     conf.DataHome,
-		"DOSAPP_STATE_HOME":    conf.StateHome,
-		"DOSAPP_CACHE_HOME":    conf.CacheHome,
-		"DOSAPP_DISK_HOME":     conf.DiskHome,
-		"DOSAPP_LINK_HOME":     conf.LinkHome,
-		"DOSAPP_PACKAGE_HOME":  conf.PackageHome,
-		"DOSAPP_DOWNLOAD_HOME": conf.DownloadHome,
-		"DOSAPP_DISK_A":        conf.DiskA,
-		"DOSAPP_DISK_B":        conf.DiskB,
-		"DOSAPP_DISK_C":        conf.DiskC,
-		"EDITOR":               conf.Editor.Bin,
-		"PAGER":                conf.Pager.Bin,
+		"DOSAPP_BIN":                conf.Bin,
+		"DOSAPP_CONFIG_HOME":        conf.ConfigHome,
+		"DOSAPP_LOG_LEVEL":          conf.LogLevel,
+		"DOSAPP_DOSBOX_BIN":         conf.DosBoxBin,
+		"DOSAPP_7Z_BIN":             conf.SevenZipBin,
+		"DOSAPP_DATA_HOME":          conf.DataHome,
+		"DOSAPP_STATE_HOME":         conf.StateHome,
+		"DOSAPP_CACHE_HOME":         conf.CacheHome,
+		"DOSAPP_DISK_HOME":          conf.DiskHome,
+		"DOSAPP_LINK_HOME":          conf.LinkHome,
+		"DOSAPP_PACKAGE_HOME":       conf.PackageHome,
+		"DOSAPP_PACKAGE_STAGE_HOME": conf.PackageStageHome,
+		"DOSAPP_ARTIFACT_HOME":      conf.ArtifactHome,
+		"DOSAPP_DOWNLOAD_HOME":      conf.DownloadHome,
+		"DOSAPP_REGISTRY":           conf.Registry,
+		"DOSAPP_DISK_A":             conf.DiskA,
+		"DOSAPP_DISK_B":             conf.DiskB,
+		"DOSAPP_DISK_C":             conf.DiskC,
+		"EDITOR":                    conf.Editor.Bin,
+		"PAGER":                     conf.Pager.Bin,
 	}
 
 	return env
@@ -270,6 +289,8 @@ func (conf *Config) Environ() []string {
 		"DOSAPP_DISK_HOME=" + conf.DiskHome,
 		"DOSAPP_LINK_HOME=" + conf.LinkHome,
 		"DOSAPP_PACKAGE_HOME=" + conf.PackageHome,
+		"DOSAPP_PACKAGE_STAGE_HOME=" + conf.PackageStageHome,
+		"DOSAPP_ARTIFACT_HOME=" + conf.ArtifactHome,
 		"DOSAPP_DOWNLOAD_HOME=" + conf.DownloadHome,
 		"DOSAPP_DISK_A=" + conf.DiskA,
 		"DOSAPP_DISK_B=" + conf.DiskB,

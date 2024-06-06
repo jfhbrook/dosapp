@@ -22,7 +22,7 @@ var removeCmd = &cobra.Command{
 
 		refreshFlag, _ := cmd.Flags().GetBool("refresh")
 
-		app := application.NewApp(conf, appName)
+		app := application.NewApp(appName, conf)
 
 		if !app.Exists() {
 			log.Fatal().Msgf("%s not found. Did you install it?", appName)
