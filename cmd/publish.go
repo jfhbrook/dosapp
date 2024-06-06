@@ -58,7 +58,6 @@ var publishCmd = &cobra.Command{
 		tw := tar.NewWriter(&tarBuf)
 
 		err = filepath.Walk("./", func(path string, info fs.FileInfo, err error) error {
-			log.Warn().Msg(path)
 			if err != nil {
 				return err
 			}
