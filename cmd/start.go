@@ -14,7 +14,10 @@ import (
 var startCmd = &cobra.Command{
 	Use:   "start [app]",
 	Short: "Start an application",
-	Long:  `Start a DOS application.`,
+	Long: `Start a DOS application.
+
+The --refresh flag will generate a fresh Taskfile.yml and DOXBox .conf files
+based on the application configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		appName := args[0]
 		conf := config.NewConfig()
