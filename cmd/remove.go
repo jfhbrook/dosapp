@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"github.com/jfhbrook/dosapp/application"
+	application "github.com/jfhbrook/dosapp/app"
 	"github.com/jfhbrook/dosapp/config"
 )
 
