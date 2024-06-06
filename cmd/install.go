@@ -95,6 +95,30 @@ var installCmd = &cobra.Command{
 	Long: `Install an application. Download the package from the registry,
 set up configuration for the app, and run its installer.
 
+The --update flag will update the package if a new version is available.
+
+The --force flag will force the package to update, even if a new version is
+not available.
+
+The --overwrite flag will overwrite the application configuration, if it
+exists. By default, package updates do not overwrite the application
+configuration.
+
+The --refresh flag will generate a fresh Taskfile.yml and DOXBox .conf files
+based on the application configuration. This is implied by --force, --update
+and --overwrite.
+
+To skip running the DOS installer for the application, set --installer=false.
+
+By default, dosapp will open the configuration file in an editor when
+installing a new application or executing --refresh. To skip opening the
+application's configuration, set --edit=false. To edit the configuration even
+when not refreshing, set --edit=true.
+
+By default, dosapp will display the package README in a pager before running
+the installer. To skip opening the README, set --docs=false. To display the
+README even when --installer=false, set --docs=true.
+
 To fetch the package without installing, run 'dosapp fetch [app]'.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
