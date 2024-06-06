@@ -1,7 +1,7 @@
 /*
 Copyright © 2024 Josh Holbrook <josh.holbrook@gmail.com>
 */
-package pager
+package tools
 
 import (
 	"os"

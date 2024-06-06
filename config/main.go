@@ -13,9 +13,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog/log"
 
-	"github.com/jfhbrook/dosapp/editor"
-	"github.com/jfhbrook/dosapp/pager"
 	"github.com/jfhbrook/dosapp/task"
+	"github.com/jfhbrook/dosapp/tools"
 )
 
 //go:embed dosapp.env
@@ -54,8 +53,8 @@ type Config struct {
 	DiskA            string
 	DiskB            string
 	DiskC            string
-	Editor           *editor.Editor
-	Pager            *pager.Pager
+	Editor           *tools.Editor
+	Pager            *tools.Pager
 }
 
 func getEnv(key string, fallback string) string {
@@ -182,8 +181,8 @@ func NewConfig() *Config {
 	edBin := os.Getenv("EDITOR")
 	pgBin := os.Getenv("PAGER")
 
-	ed := editor.NewEditor(os.Getenv("EDITOR"))
-	pg := pager.NewPager(os.Getenv("PAGER"))
+	ed := tools.NewEditor(os.Getenv("EDITOR"))
+	pg := tools.NewPager(os.Getenv("PAGER"))
 
 	conf := Config{
 		Bin:              bin,
