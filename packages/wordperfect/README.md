@@ -31,11 +31,9 @@ It may be worth trying out DOSBox-X to get printing working.
 #### Conversion Drivers
 
 This is how WordPerfect converts from its standard format to the formats of
-other text editors. The following list is a good place to startL
+other text editors. Many of the greatest hits are installed by default. The
+following list are a few extras that can be handy.
 
-* ASCII Text (Standard) - **Installed automatically
-* Bitmap Graphics - **Installed automatically**
-* DOS Delimited Text - A CSV format
 * Encapsulated PostScript (EPS) - Good for printing from the host
 * Rich-Text Format (RTF) - Can be opened with modern MSWord
 * WordStar 4.0 - Can be opened by WordStar 4.0 in CP/M

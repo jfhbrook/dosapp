@@ -9,27 +9,22 @@ First, make sure you have all the dependencies installed:
 - [DosBox-X](https://dosbox-x.com/) (or DOSBox with configuration)
 - `bash` - `dosapp` is currently written in Bash
 - [go-task](https://taskfile.dev)
-- [gomplate](https://gomplate.ca/)
 - `curl`
 - `7zz` - Packages currently only work with .7z files, but having `unzip` and
   `tar` are probably good ideas as well
 
-Otherwise, installing `dosapp` is currently a matter of cloning this repo and
-running `task install` to link `./bin/dosapp` to `~/.local/bin/dosapp`. To
-YOLO that install, you can try running:
+Then, install `dosapp`:
 
 ```sh
-bash <(curl -sSfL https://raw.githubusercontent.com/jfhbrook/dosapp/main/install.sh)
+go install github.com/jfhbrook/dosapp@latest
 ```
-
-This script should also update `dosapp` if it's already installed.
 
 ## Getting Started
 
 To get started, run:
 
 ```sh
-dosapp init
+dosapp config
 ```
 
 This will generate the initial configuration.
