@@ -14,7 +14,6 @@ import (
 	"github.com/schollz/progressbar/v3"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/manifest"
 )
 
 type Package struct {
@@ -56,7 +55,7 @@ func NewPackage(
 	pkg.UpstreamReleaseVersion = releaseVersion
 	pkg.URL = url
 
-	m, err := manifest.FromFile(packagePath)
+	m, err := ManifestFromFile(packagePath)
 
 	if err != nil {
 		log.Debug().Str("path", packagePath).Err(err).Msg("Installed package not found")

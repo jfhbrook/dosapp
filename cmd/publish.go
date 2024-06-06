@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/jfhbrook/dosapp/config"
-	"github.com/jfhbrook/dosapp/manifest"
+	"github.com/jfhbrook/dosapp/pacman"
 )
 
 var publishCmd = &cobra.Command{
@@ -26,7 +26,7 @@ var publishCmd = &cobra.Command{
 	Long:  `Publish the current app by creating and uploading a GitHub release.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := config.NewConfig()
-		man, err := manifest.FromFile("./Package.yml")
+		man, err := pacman.ManifestFromFile("./Package.yml")
 
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to read manifest")

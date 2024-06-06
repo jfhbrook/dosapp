@@ -1,4 +1,4 @@
-package manifest
+package pacman
 
 import (
 	"os"
@@ -13,7 +13,7 @@ type Manifest struct {
 	ReleaseVersion *semver.Version `yaml:"release_version"`
 }
 
-func FromFile(path string) (*Manifest, error) {
+func ManifestFromFile(path string) (*Manifest, error) {
 	var file []byte
 	var err error
 
