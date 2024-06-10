@@ -7,8 +7,8 @@ Manage DOSBox apps.
 First, make sure you have all the dependencies installed:
 
 - [DosBox-X](https://dosbox-x.com/) (or DOSBox with configuration)
-- `bash` - `dosapp` is currently written in Bash
 - [go-task](https://taskfile.dev)
+- `bash` - `dosapp` executes tasks using a shell
 - `curl`
 - `7zz` - Packages currently only work with .7z files, but having `unzip` and
   `tar` are probably good ideas as well
